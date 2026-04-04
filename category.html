@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Категории продуктов | KUAT Admin</title>
+    <script src="static/js/auth.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* --- БАЗОВЫЕ СТИЛИ --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Montserrat', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #f4f7f6;
+            color: #333;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        h1 { font-size: 24px; margin-bottom: 25px; font-weight: 600; }
+
+        /* --- САЙДБАР --- */
+        .sidebar {
+            width: 280px;
+            background-color: #fff;
+            border-right: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+            padding: 30px 20px;
+            position: fixed;
+            height: 100vh;
+            left: 0; top: 0;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 3000;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+            z-index: 2500;
+        }
+
+        .sidebar-overlay.active { display: block; }
+
+        .sidebar-header {
+            font-weight: 600;
+            font-size: 14px;
+            color: #aaa;
+            letter-spacing: 1.5px;
+            margin-bottom: 30px;
+            padding-left: 15px;
+        }
+
+        .sidebar-menu { list-style: none; flex-grow: 1; }
+        .sidebar-menu li { margin-bottom: 8px; }
+        .sidebar-menu a {
+            text-decoration: none;
+            color: #555;
+            font-size: 15px;
+            font-weight: 500;
+            padding: 14px 18px;
+            display: block;
+            border-radius: 10px;
+            transition: 0.2s;
+        }
+
+        .sidebar-menu a.active-link { background-color: #000; color: #fff; }
+        .sidebar-menu a:hover:not(.active-link) { background-color: #f0f0f0; }
+
+        .logout-btn {
+            width: 100%;
+            background-color: #f0f0f0;
+            color: #ff4444;
+            padding: 14px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            margin-top: 20px;
+        }
+
+        /* --- ОСНОВНОЙ КОНТЕНТ --- */
+        .main-content {
+            flex-grow: 1;
+            margin-left: 280px;
+            padding: 40px;
+            transition: 0.3s;
+            width: 100%;
+        }
+
+        .mobile-header {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            z-index: 2000;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+
+        .burger {
+            width: 40px; height: 40px;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            gap: 5px; cursor: pointer;
+        }
+        .burger span { width: 24px; height: 2px; background: #000; border-radius: 2px; }
+
+        /* --- ТАБЛИЦА (CRM STYLE) --- */
+        .table-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background: #f8fafc;
+            padding: 16px 24px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        td {
+            padding: 18px 24px;
+            border-bottom: 1px solid #edf2f7;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+
+        tr:hover td { background-color: #f9fafb; }
+
+        /* Контент категорий */
+        .cat-img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid #eee;
+        }
+
+        .cat-name { font-weight: 600; color: #2d3748; display: block; margin-bottom: 4px; }
+        .cat-desc { font-size: 13px; color: #718096; line-height: 1.4; }
+
+        /* --- КНОПКИ И ИНПУТЫ --- */
+        .btn {
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid #e2e8f0;
+            white-space: nowrap;
+        }
+
+        .btn-edit { background: #fff; color: #333; }
+        .btn-edit:hover { background: #f8fafc; border-color: #cbd5e0; }
+
+        .btn-save { background: #000; color: #fff; border-color: #000; }
+        .btn-save:hover { background: #333; }
+
+        .table-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            background: #fcfcfc;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .table-input:focus { border-color: #000; background: #fff; }
+
+        /* Увеличиваем минимальную ширину первой колонки в режиме редактирования */
+        td:first-child {
+            min-width: 120px; /* Дает кнопке "Выбрать файл" пространство */
+        }
+
+        /* На мобилках делаем еще свободнее */
+        @media (max-width: 600px) {
+            td:first-child {
+                width: 100% !important;
+                min-width: unset;
+            }
+        }
+
+        /* --- АДАПТИВНОСТЬ --- */
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.active { transform: translateX(0); box-shadow: 15px 0 30px rgba(0,0,0,0.1); }
+            .main-content { margin-left: 0; padding: 100px 20px 40px; }
+            .mobile-header { display: flex; }
+        }
+
+        @media (max-width: 600px) {
+            td div[style*="display: flex"] {
+                flex-direction: column; /* Кнопки станут одна под другой на телефонах */
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 600px) {
+            th { display: none; }
+            td {
+                display: block;
+                padding: 12px 24px;
+                border: none;
+                text-align: left;
+            }
+            tr { border-bottom: 8px solid #f4f7f6; display: block; padding: 10px 0; }
+            .cat-img { width: 100%; height: 150px; }
+            .btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar-overlay" id="overlay"></div>
+
+    <div class="mobile-header">
+        <span style="font-weight: 600; font-size: 16px;">KUAT ADMIN</span>
+        <div class="burger" id="burgerBtn">
+            <span></span><span></span><span></span>
+        </div>
+    </div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">МЕНЮ УПРАВЛЕНИЯ</div>
+        <ul class="sidebar-menu">
+            <li><a href="main.html">Главная страница</a></li>
+            <li><a href="category.html" class="active-link">Категории продуктов</a></li>
+            <li><a href="products.html">Продукты</a></li>
+            <li><a href="requests.html">Заявки</a></li>
+            <li><a href="footer.html">Footer / Контакты</a></li>
+            <li><a href="partners.html">Партнеры</a></li>
+            <li><a href="change_password.html">Смена пароля</a></li>
+        </ul>
+        <button class="logout-btn" onclick="handleLogout()">Выйти из системы</button>
+    </aside>
+
+    <main class="main-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+            <h1>Категории продуктов</h1>
+            <button class="btn btn-save" onclick="openAddModal()">+ Добавить категорию</button>
+        </div>
+
+        <div class="sidebar-overlay" id="modalOverlay" style="z-index: 4000;"></div>
+
+        <div id="addCategoryModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 15px; z-index: 4001; width: 90%; max-width: 500px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+            <h2 style="margin-bottom: 20px; font-size: 18px;">Новая категория</h2>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <div>
+                    <label style="font-size: 12px; color: #999; font-weight: 600; text-transform: uppercase;">Название</label>
+                    <input type="text" id="new-cat-name" class="table-input" placeholder="Например: Гидравлика">
+                </div>
+                <div>
+                    <label style="font-size: 12px; color: #999; font-weight: 600; text-transform: uppercase;">Описание</label>
+                    <textarea id="new-cat-desc" class="table-input" rows="3" placeholder="Краткое описание категории"></textarea>
+                </div>
+                <div>
+                    <label style="font-size: 12px; color: #999; font-weight: 600; text-transform: uppercase;">Изображение</label>
+                    <input type="file" id="new-cat-file" style="display: block; margin-top: 10px;">
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px;">
+                    <button class="btn btn-edit" onclick="closeAddModal()">Отмена</button>
+                    <button class="btn btn-save" id="btn-create-cat" onclick="createCategory()">Создать</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 100px;">Фото</th>
+                        <th>Название и описание</th>
+                        <th>Количество</th>
+                        <th style="text-align: right; width: 160px;">Действие</th>
+                    </tr>
+                </thead>
+                <tbody id="categories-body">
+                    </tbody>
+            </table>
+        </div>
+    </main>
+
+<script>
+    const API_CATEGORIES = 'https://kuat-admin.com/api/categories/';
+
+    // --- МОБИЛЬНОЕ МЕНЮ ---
+    const burgerBtn = document.getElementById('burgerBtn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+
+    function toggleMenu() {
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+    }
+    burgerBtn?.addEventListener('click', toggleMenu);
+    overlay?.addEventListener('click', toggleMenu);
+
+    // --- ЗАГРУЗКА КАТЕГОРИЙ ---
+    async function loadCategories() {
+        try {
+            const res = await authorizedFetch(API_CATEGORIES);
+            if (!res.ok) throw new Error("Ошибка API");
+            const data = await res.json();
+            renderCategories(data);
+        } catch (e) {
+            console.error(e);
+            document.getElementById('categories-body').innerHTML =
+                '<tr><td colspan="3" style="text-align:center; padding:40px; color:#999;">Ошибка загрузки данных</td></tr>';
+        }
+    }
+
+    // --- ОТРИСОВКА ТАБЛИЦЫ ---
+    function renderCategories(list) {
+    const tbody = document.getElementById('categories-body');
+    if (list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:40px;">Нет категорий</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = list.map(cat => `
+    <tr id="row-${cat.id}">
+        <td>
+            <img src="${cat.image || 'https://via.placeholder.com/60'}" class="cat-img" id="img-preview-${cat.id}">
+        </td>
+        <td>
+            <div id="content-${cat.id}">
+                <span class="cat-name">${cat.name}</span>
+                <span class="cat-desc">${cat.description || 'Описание отсутствует'}</span>
+            </div>
+        </td>
+        <td>Продуктов: ${cat.products ? cat.products.length : 0}</td>
+
+        <td style="text-align: right;">
+            <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                <button class="btn btn-edit" id="btn-${cat.id}"
+                    onclick="toggleEdit(${cat.id}, '${cat.name.replace(/'/g, "\\'")}', '${(cat.description || '').replace(/'/g, "\\'")}')">
+                    Изменить
+                </button>
+
+                <button class="btn"
+                    style="color: #ff4444; border-color: #ff4444; background: #fff;"
+                    onclick="deleteCategory(${cat.id}, ${cat.products ? cat.products.length : 0})">
+                    Удалить
+                </button>
+            </div>
+        </td>
+    </tr>
+`).join('');
+}
+
+    // --- РЕЖИМ РЕДАКТИРОВАНИЯ ---
+    function toggleEdit(id, name, desc) {
+        const contentBox = document.getElementById(`content-${id}`);
+        const imgCell = document.getElementById(`row-${id}`).cells[0];
+        const btn = document.getElementById(`btn-${id}`);
+
+        // Текстовые поля в инпуты
+        contentBox.innerHTML = `
+            <input type="text" id="input-name-${id}" class="table-input" value="${name}" placeholder="Название категории">
+            <textarea id="input-desc-${id}" class="table-input" rows="2" placeholder="Описание">${desc}</textarea>
+        `;
+
+        // Добавляем инпут для файла под превью
+        // Находим место в функции toggleEdit, где добавляется инпут для фото:
+        imgCell.innerHTML += `
+            <div style="margin-top: 10px;">
+                <input type="file" id="input-file-${id}" accept="image/*"
+                       style="display: none;" onchange="showSelectedName(${id})">
+
+                <button type="button" class="btn-edit" style="width: 100%; font-size: 11px;"
+                        onclick="document.getElementById('input-file-${id}').click()">
+                    Выбрать фото
+                </button>
+
+                <div id="file-name-${id}" style="font-size: 10px; color: #22543d; margin-top: 5px; font-weight: 600;"></div>
+            </div>
+        `;
+
+        // Меняем кнопку
+        btn.textContent = 'Сохранить';
+        btn.className = 'btn btn-save';
+        btn.onclick = () => saveCategory(id);
+    }
+
+    // --- СОХРАНЕНИЕ (PATCH) ---
+    async function saveCategory(id) {
+        const nameInput = document.getElementById(`input-name-${id}`);
+        const descInput = document.getElementById(`input-desc-${id}`);
+        const fileInput = document.getElementById(`input-file-${id}`);
+        const btn = document.getElementById(`btn-${id}`);
+
+        const formData = new FormData();
+        formData.append('name', nameInput.value);
+        formData.append('description', descInput.value);
+
+        if (fileInput.files[0]) {
+            formData.append('image', fileInput.files[0]);
+        }
+
+        btn.disabled = true;
+        btn.textContent = '...';
+
+        try {
+            const res = await authorizedFetch(`${API_CATEGORIES}${id}/`, {
+                method: 'PATCH',
+                body: formData
+            });
+
+            if (res.ok) {
+                await loadCategories(); // Полное обновление таблицы после успеха
+            } else {
+                const err = await res.json();
+                alert("Ошибка сохранения: " + JSON.stringify(err));
+                btn.disabled = false;
+                btn.textContent = 'Сохранить';
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Ошибка соединения с сервером");
+            btn.disabled = false;
+            btn.textContent = 'Сохранить';
+        }
+    }
+
+    function handleLogout() {
+        localStorage.clear();
+        window.location.href = 'index.html';
+    }
+
+    function showSelectedName(id) {
+        const fileInput = document.getElementById(`input-file-${id}`);
+        const nameDisplay = document.getElementById(`file-name-${id}`);
+
+        if (fileInput.files.length > 0) {
+            // Показываем только имя файла, если он выбран
+            nameDisplay.textContent = "✓ " + fileInput.files[0].name;
+        } else {
+            nameDisplay.textContent = "";
+        }
+    }
+
+    // --- УПРАВЛЕНИЕ МОДАЛЬНЫМ ОКНОМ ---
+function openAddModal() {
+    document.getElementById('addCategoryModal').style.display = 'block';
+    document.getElementById('modalOverlay').classList.add('active');
+}
+
+function closeAddModal() {
+    document.getElementById('addCategoryModal').style.display = 'none';
+    document.getElementById('modalOverlay').classList.remove('active');
+    // Очистка полей
+    document.getElementById('new-cat-name').value = '';
+    document.getElementById('new-cat-desc').value = '';
+    document.getElementById('new-cat-file').value = '';
+}
+
+// Закрытие по клику на оверлей
+document.getElementById('modalOverlay').onclick = closeAddModal;
+
+// --- API: СОЗДАНИЕ КАТЕГОРИИ (POST) ---
+async function createCategory() {
+    const nameInput = document.getElementById('new-cat-name');
+    const descInput = document.getElementById('new-cat-desc');
+    const fileInput = document.getElementById('new-cat-file');
+    const btn = document.getElementById('btn-create-cat');
+
+    const name = nameInput.value.trim();
+    const desc = descInput.value.trim();
+
+    // Проверки на заполненность
+    if (!name) {
+        alert("Введите название");
+        return;
+    }
+    if (!desc) {
+        alert("Введите описание");
+        return;
+    }
+    if (!fileInput.files || fileInput.files.length === 0) {
+        alert("Выберите фото");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('description', desc);
+    formData.append('image', fileInput.files[0]);
+
+    btn.disabled = true;
+    btn.textContent = 'Создание...';
+
+    try {
+        const res = await authorizedFetch(API_CATEGORIES, {
+            method: 'POST',
+            body: formData
+        });
+
+        if (res.ok) {
+            // Просто закрываем и обновляем список
+            closeAddModal();
+            await loadCategories();
+        } else {
+            const err = await res.json();
+            alert("Ошибка сервера: " + JSON.stringify(err));
+        }
+    } catch (e) {
+        console.error(e);
+        alert("Ошибка сети");
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Создать';
+    }
+}
+
+// Также обновите вашу функцию toggleEdit, чтобы использовать скрытый инпут (как обсуждали ранее)
+function toggleEdit(id, name, desc) {
+    const contentBox = document.getElementById(`content-${id}`);
+    const imgCell = document.getElementById(`row-${id}`).cells[0];
+    const btn = document.getElementById(`btn-${id}`);
+
+    contentBox.innerHTML = `
+        <input type="text" id="input-name-${id}" class="table-input" value="${name}">
+        <textarea id="input-desc-${id}" class="table-input" rows="2">${desc}</textarea>
+    `;
+
+    // Скрытый инпут + кнопка для чистоты интерфейса
+    imgCell.innerHTML += `
+        <div style="margin-top: 10px;">
+            <input type="file" id="input-file-${id}" style="display:none" onchange="document.getElementById('fn-${id}').textContent = 'Выбрано: '+this.files[0].name">
+            <button type="button" class="btn-edit" style="width:100%; font-size:10px; padding:5px;" onclick="document.getElementById('input-file-${id}').click()">Заменить фото</button>
+            <div id="fn-${id}" style="font-size:9px; color:green; margin-top:4px;"></div>
+        </div>
+    `;
+
+    btn.textContent = 'Сохранить';
+    btn.className = 'btn btn-save';
+    btn.onclick = () => saveCategory(id);
+}
+
+    // Добавьте параметр productsCount
+async function deleteCategory(id, productsCount) {
+
+    // 1. ПРОВЕРКА НА КЛИЕНТЕ: Если есть продукты, прерываем выполнение сразу
+    if (productsCount > 0) {
+        alert("Нельзя удалить категорию, в которой есть продукты!");
+        return;
+    }
+
+    // 2. Подтверждение для пустой категории
+    if (!confirm("Вы уверены, что хотите удалить эту пустую категорию?")) {
+        return;
+    }
+
+    try {
+        const res = await authorizedFetch(`${API_CATEGORIES}${id}/`, {
+            method: 'DELETE'
+        });
+
+        if (res.ok) {
+            await loadCategories();
+        } else {
+            alert("Ошибка при удалении на стороне сервера.");
+        }
+    } catch (e) {
+        console.error("Ошибка при удалении:", e);
+        alert("Ошибка сети");
+    }
+}
+
+    document.addEventListener('DOMContentLoaded', loadCategories);
+    </script>
+</body>
+</html>

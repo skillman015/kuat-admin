@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Партнеры</title>
+    <script src="static/js/auth.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+    /* --- БАЗОВЫЕ СТИЛИ --- */
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: 'Montserrat', sans-serif;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+        background-color: #f9f9f9;
+        color: #333;
+        display: flex;
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
+
+    h1 { font-size: 24px; margin-bottom: 25px; font-weight: 600; }
+
+    /* --- САЙДБАР --- */
+    .sidebar {
+        width: 280px;
+        background-color: #fff;
+        border-right: 1px solid #eee;
+        display: flex;
+        flex-direction: column;
+        padding: 30px 20px;
+        position: fixed;
+        height: 100vh;
+        left: 0; top: 0;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 3000;
+    }
+
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.4);
+        z-index: 2500;
+    }
+
+    .sidebar-overlay.active { display: block; }
+
+    .sidebar-header {
+        font-weight: 600;
+        font-size: 14px;
+        color: #aaa;
+        letter-spacing: 1.5px;
+        margin-bottom: 30px;
+        padding-left: 15px;
+    }
+
+    .sidebar-menu { list-style: none; flex-grow: 1; }
+    .sidebar-menu li { margin-bottom: 8px; }
+    .sidebar-menu a {
+        text-decoration: none;
+        color: #555;
+        font-size: 15px;
+        font-weight: 500;
+        padding: 14px 18px;
+        display: block;
+        border-radius: 10px;
+        transition: 0.2s;
+    }
+
+    .sidebar-menu a.active-link { background-color: #000; color: #fff; }
+    .sidebar-menu a:hover:not(.active-link) { background-color: #f0f0f0; }
+
+    .logout-btn {
+        width: 100%;
+        background-color: #f0f0f0;
+        color: #ff4444;
+        padding: 14px;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        margin-top: 20px;
+    }
+
+    /* --- ОСНОВНОЙ КОНТЕНТ --- */
+    .main-content {
+        flex-grow: 1;
+        margin-left: 280px;
+        padding: 40px;
+        transition: 0.3s;
+        width: 100%;
+    }
+
+    .mobile-header {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%;
+        background: #fff;
+        padding: 15px 20px;
+        border-bottom: 1px solid #eee;
+        z-index: 2000;
+        justify-content: space-between;
+        align-items: center;
+        height: 70px;
+    }
+
+    .burger {
+        width: 40px; height: 40px;
+        display: flex; flex-direction: column;
+        justify-content: center; align-items: center;
+        gap: 5px; cursor: pointer;
+    }
+    .burger span { width: 24px; height: 2px; background: #000; border-radius: 2px; }
+
+    /* --- ТАБЛИЦА (FIXED LAYOUT) --- */
+    .table-container {
+        background: #fff;
+        border-radius: 15px;
+        border: 1px solid #eee;
+        overflow: hidden;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed; /* Фиксирует ширину колонок */
+    }
+
+    th {
+        background: #fafafa;
+        padding: 18px 25px;
+        text-align: left;
+        font-size: 12px;
+        color: #999;
+        text-transform: uppercase;
+        border-bottom: 1px solid #eee;
+    }
+
+    td {
+        padding: 20px 25px;
+        border-bottom: 1px solid #eee;
+        font-size: 15px;
+        word-wrap: break-word; /* Перенос длинного текста */
+    }
+
+    /* Пропорции колонок */
+    th:nth-child(1), td:nth-child(1) { width: 25%; }
+    th:nth-child(2), td:nth-child(2) { width: 60%; }
+    th:nth-child(3), td:nth-child(3) { width: 15%; text-align: right; }
+
+    /* --- КНОПКИ И ИНПУТЫ --- */
+    .edit-btn, .save-btn {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+        white-space: nowrap;
+    }
+
+    .edit-btn { background: #fff; border: 1px solid #eee; color: #333; }
+    .edit-btn:hover { background: #f9f9f9; }
+
+    .save-btn { background: #000; border: 1px solid #000; color: #fff; }
+
+    .table-input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 15px;
+        outline: none;
+        background: #fcfcfc;
+        display: block;
+        box-sizing: border-box;
+    }
+    .table-input:focus { border-color: #000; background: #fff; }
+
+    /* --- АДАПТИВНОСТЬ (ПЛАНШЕТЫ И МОБИЛКИ) --- */
+    @media (max-width: 992px) {
+        .sidebar { transform: translateX(-100%); }
+        .sidebar.active { transform: translateX(0); box-shadow: 15px 0 30px rgba(0,0,0,0.1); }
+        .main-content { margin-left: 0; padding: 100px 20px 40px; }
+        .mobile-header { display: flex; }
+    }
+
+    /* Адаптивная таблица в карточки */
+    @media (max-width: 600px) {
+        table { table-layout: auto; }
+        thead { display: none; }
+
+        table, tbody, tr, td { display: block; width: 100% !important; }
+
+        tr { padding: 20px; border-bottom: 2px solid #f0f0f0; }
+
+        td {
+            padding: 10px 0;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            text-align: left !important;
+        }
+
+        td::before {
+            content: attr(data-label);
+            font-size: 11px;
+            color: #aaa;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        td:last-child {
+            align-items: flex-start;
+            margin-top: 10px;
+        }
+
+        .edit-btn, .save-btn { width: 100%; }
+    }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar-overlay" id="overlay"></div>
+
+    <div class="mobile-header">
+        <span style="font-weight: 600; font-size: 16px;">KUAT ADMIN</span>
+        <div class="burger" id="burgerBtn">
+            <span></span><span></span><span></span>
+        </div>
+    </div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">МЕНЮ УПРАВЛЕНИЯ</div>
+        <ul class="sidebar-menu">
+            <li><a href="main.html">Главная страница</a></li>
+            <li><a href="category.html">Категории продуктов</a></li>
+            <li><a href="products.html">Продукты</a></li>
+            <li><a href="requests.html">Заявки</a></li>
+            <li><a href="footer.html">Footer / Контакты</a></li>
+            <li><a href="partners.html" class="active-link">Партнеры</a></li>
+            <li><a href="change_password.html">Смена пароля</a></li>
+        </ul>
+
+        <button class="logout-btn" onclick="handleLogout()">Выйти из системы</button>
+    </aside>
+
+   <main class="main-content">
+    <h1>Управление партнерами</h1>
+
+    <div class="table-container" style="margin-bottom: 40px;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Поле</th>
+                    <th>Значение</th>
+                    <th style="text-align: right;">Действие</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td data-label="Поле"><strong>Заголовок страницы</strong></td>
+                    <td data-label="Значение" id="cell-title">Загрузка...</td>
+                    <td style="text-align: right;">
+                        <button class="edit-btn" onclick="toggleEditHeader('title')">Изменить</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td data-label="Поле"><strong>Подзаголовок</strong></td>
+                    <td data-label="Значение" id="cell-subtitle">Загрузка...</td>
+                    <td style="text-align: right;">
+                        <button class="edit-btn" onclick="toggleEditHeader('subtitle')">Изменить</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="table-container" id="add-partner-form" style="display: none; margin-bottom: 20px; padding: 20px; border: 2px solid #000;">
+        <h3 style="margin-bottom: 15px;">Новый партнер</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <input type="text" id="new-partner-name" class="table-input" placeholder="Название компании">
+            <input type="text" id="new-partner-url" class="table-input" placeholder="Ссылка на сайт (https://...)">
+        </div>
+        <div style="margin-bottom: 15px;">
+            <label style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Логотип компании:</label>
+            <input type="file" id="new-partner-logo" accept="image/*" class="table-input">
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <button class="save-btn" onclick="submitNewPartner()">Сохранить партнера</button>
+            <button class="edit-btn" onclick="closeAddPartnerForm()">Отмена</button>
+        </div>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>Список компаний</h2>
+        <button class="save-btn" id="show-add-btn" onclick="openAddPartnerForm()">+ Добавить партнера</button>
+    </div>
+
+       <div class="table-card" style="background: #fff; border-radius: 12px; border: 1px solid #eee; overflow: hidden;">
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background: #f8fafc; text-align: left; border-bottom: 1px solid #eee;">
+                <th style="padding: 15px; width: 100px;">Лого</th>
+                <th style="padding: 15px;">Компания и ссылка</th>
+                <th style="padding: 15px; text-align: right;">Действие</th>
+            </tr>
+        </thead>
+        <tbody id="partners-list">
+            <tr>
+                <td colspan="3" style="text-align:center; padding:30px; color:#999;">
+                    Загрузка списка партнеров...
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+</main>
+
+<script>
+    const API_PARTNERS = 'https://kuat-admin.com/api/partners/';
+
+    // --- ИНИЦИАЛИЗАЦИЯ МЕНЮ ---
+    const burgerBtn = document.getElementById('burgerBtn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+
+    function toggleMenu() {
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+    }
+    burgerBtn?.addEventListener('click', toggleMenu);
+    overlay?.addEventListener('click', toggleMenu);
+
+    // --- ЗАГРУЗКА ДАННЫХ ---
+    async function loadPartnersData() {
+        try {
+            const res = await authorizedFetch(API_PARTNERS);
+            if (!res || !res.ok) throw new Error("Fetch error");
+            const data = await res.json();
+
+            // Проверка: редактируется ли поле сейчас
+            const isEditing = (id) => {
+                const cell = document.getElementById(id);
+                return cell && cell.querySelector('input');
+            };
+
+            // Обновляем заголовок
+            if (!isEditing('cell-title')) {
+                document.getElementById('cell-title').textContent = data.title || '—';
+            }
+            // Обновляем подзаголовок
+            if (!isEditing('cell-subtitle')) {
+                document.getElementById('cell-subtitle').textContent = data.subtitle || '—';
+            }
+
+            // Рендер списка партнеров
+            renderPartnersList(data.partners);
+        } catch (e) {
+            console.error("Ошибка загрузки:", e);
+        }
+    }
+
+    function renderPartnersList(partners) {
+    const container = document.getElementById('partners-list');
+    if (!container) return;
+
+    if (!partners || partners.length === 0) {
+        container.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:30px; color:#999;">Партнеров пока нет</td></tr>';
+        return;
+    }
+
+    container.innerHTML = partners.map(p => {
+        // Проверяем, есть ли протокол, чтобы не дублировать домен
+        const logoUrl = p.logo.startsWith('http') ? p.logo : 'https://kuat-admin.com' + p.logo;
+
+        // ИСПОЛЬЗУЕМ p.url вместо p.website_url, так как это пришло в JSON
+        const website = p.url || '#';
+
+        return `
+            <tr>
+                <td>
+                    <img src="${logoUrl}"
+                         style="width: 60px; height: 60px; object-fit: contain; border: 1px solid #eee; border-radius: 8px;"
+                         onerror="this.src='https://via.placeholder.com/60?text=No+Logo'">
+                </td>
+                <td>
+                    <div style="font-weight: 600;">${p.name}</div>
+                    <a href="${website}" target="_blank" style="font-size: 13px; color: #0066cc; text-decoration: underline; word-break: break-all;">
+                        ${website}
+                    </a>
+                </td>
+                <td style="text-align: right;">
+                    <button class="edit-btn" style="color: #ff4444; border-color: #ff4444;" onclick="deletePartner(${p.id})">Удалить</button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+    // --- РЕДАКТИРОВАНИЕ ЗАГОЛОВКОВ ---
+    function toggleEditHeader(field) {
+        const cell = document.getElementById(`cell-${field}`);
+        const btn = cell.closest('tr').querySelector('button');
+
+        if (btn.textContent === 'Изменить') {
+            const currentVal = cell.textContent === '—' ? '' : cell.textContent;
+            cell.innerHTML = `<input type="text" class="table-input" id="input-${field}" value="${currentVal}">`;
+            btn.textContent = 'Сохранить';
+            btn.className = 'save-btn';
+            btn.onclick = () => saveHeader(field, btn);
+        }
+    }
+
+    async function saveHeader(field, btn) {
+        const input = document.getElementById(`input-${field}`);
+        if (!input) return;
+
+        const val = input.value;
+        const cell = document.getElementById(`cell-${field}`);
+
+        btn.disabled = true;
+        btn.textContent = '...';
+
+        try {
+            const res = await authorizedFetch(API_PARTNERS, {
+                method: 'PATCH',
+                body: JSON.stringify({ [field]: val })
+            });
+
+            if (res && res.ok) {
+                cell.innerHTML = '...'; // Временно чистим, чтобы loadData сработал
+                await loadPartnersData();
+                btn.textContent = 'Изменить';
+                btn.className = 'edit-btn';
+                btn.disabled = false;
+                btn.onclick = () => toggleEditHeader(field);
+            }
+        } catch (e) {
+            alert("Ошибка сохранения");
+            btn.disabled = false;
+            btn.textContent = 'Ошибка';
+        }
+    }
+
+    // --- УПРАВЛЕНИЕ ФОРМОЙ ДОБАВЛЕНИЯ ---
+    function openAddPartnerForm() {
+        document.getElementById('add-partner-form').style.display = 'block';
+        document.getElementById('show-add-btn').style.display = 'none';
+    }
+
+    function closeAddPartnerForm() {
+        document.getElementById('add-partner-form').style.display = 'none';
+        document.getElementById('show-add-btn').style.display = 'block';
+        // Чистим поля
+        document.getElementById('new-partner-name').value = '';
+        document.getElementById('new-partner-url').value = '';
+        document.getElementById('new-partner-logo').value = '';
+    }
+
+    async function submitNewPartner() {
+        const nameInput = document.getElementById('new-partner-name');
+        const urlInput = document.getElementById('new-partner-url');
+        const logoInput = document.getElementById('new-partner-logo');
+
+        const name = nameInput.value.trim();
+        const url = urlInput.value.trim();
+        const logoFile = logoInput.files[0];
+
+        if (!name || !url || !logoFile) {
+            alert("Пожалуйста, заполните все поля и выберите логотип");
+            return;
+        }
+
+        // Создаем FormData (обязательно для передачи файлов)
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('url', url); // В твоем JSON поле называется "url"
+        formData.append('logo', logoFile);
+
+        const btn = document.querySelector('#add-partner-form .save-btn');
+        btn.disabled = true;
+        btn.textContent = 'Загрузка...';
+
+        try {
+            // Мы отправляем POST на базовый URL.
+            // Сервер должен понять, что это создание нового элемента в коллекции partners.
+            const res = await authorizedFetch(API_PARTNERS, {
+                method: 'POST',
+                body: formData
+                // Важно: headers 'Content-Type' указывать НЕ НУЖНО,
+                // браузер сам поставит multipart/form-data с правильным boundary
+            });
+
+            if (res.ok) {
+                closeAddPartnerForm();
+                await loadPartnersData(); // Обновляем список, чтобы увидеть нового партнера
+            } else {
+                const errorData = await res.json();
+                console.error("Ошибка сервера:", errorData);
+                alert("Ошибка: " + JSON.stringify(errorData));
+            }
+        } catch (e) {
+            console.error("Ошибка запроса:", e);
+            alert("Произошла ошибка при отправке данных");
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Сохранить партнера';
+        }
+    }
+
+    async function deletePartner(partnerId) {
+    if (!confirm("Удалить этого партнера?")) return;
+
+    // Стандартный путь DRF для удаления: /api/partners/ID/
+    const url = `${API_PARTNERS}${partnerId}/`;
+
+    try {
+        const res = await authorizedFetch(url, {
+            method: 'DELETE'
+        });
+
+        if (res.ok) {
+            // Если сервер вернул 204 No Content, всё успешно
+            await loadPartnersData();
+        } else {
+            // Если ошибка, пробуем прочитать JSON, если там HTML — выводим статус
+            const text = await res.text();
+            try {
+                const err = JSON.parse(text);
+                alert("Ошибка: " + JSON.stringify(err));
+            } catch(e) {
+                alert(`Ошибка сервера (${res.status}). Проверьте URL в urls.py`);
+            }
+        }
+    } catch (e) {
+        console.error("Ошибка сети:", e);
+    }
+}
+
+    function handleLogout() {
+        localStorage.clear();
+        window.location.href = 'index.html';
+    }
+
+    document.addEventListener('DOMContentLoaded', loadPartnersData);
+</script>
+</body>
+</html>

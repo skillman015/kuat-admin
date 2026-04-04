@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Footer / Контакты</title>
+    <script src="static/js/auth.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+    /* --- БАЗОВЫЕ СТИЛИ --- */
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: 'Montserrat', sans-serif;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+        background-color: #f9f9f9;
+        color: #333;
+        display: flex;
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
+
+    h1 { font-size: 24px; margin-bottom: 25px; font-weight: 600; }
+
+    /* --- САЙДБАР --- */
+    .sidebar {
+        width: 280px;
+        background-color: #fff;
+        border-right: 1px solid #eee;
+        display: flex;
+        flex-direction: column;
+        padding: 30px 20px;
+        position: fixed;
+        height: 100vh;
+        left: 0; top: 0;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 3000;
+    }
+
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.4);
+        z-index: 2500;
+    }
+
+    .sidebar-overlay.active { display: block; }
+
+    .sidebar-header {
+        font-weight: 600;
+        font-size: 14px;
+        color: #aaa;
+        letter-spacing: 1.5px;
+        margin-bottom: 30px;
+        padding-left: 15px;
+    }
+
+    .sidebar-menu { list-style: none; flex-grow: 1; }
+    .sidebar-menu li { margin-bottom: 8px; }
+    .sidebar-menu a {
+        text-decoration: none;
+        color: #555;
+        font-size: 15px;
+        font-weight: 500;
+        padding: 14px 18px;
+        display: block;
+        border-radius: 10px;
+        transition: 0.2s;
+    }
+
+    .sidebar-menu a.active-link { background-color: #000; color: #fff; }
+    .sidebar-menu a:hover:not(.active-link) { background-color: #f0f0f0; }
+
+    .logout-btn {
+        width: 100%;
+        background-color: #f0f0f0;
+        color: #ff4444;
+        padding: 14px;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        margin-top: 20px;
+    }
+
+    /* --- ОСНОВНОЙ КОНТЕНТ --- */
+    .main-content {
+        flex-grow: 1;
+        margin-left: 280px;
+        padding: 40px;
+        transition: 0.3s;
+        width: 100%;
+    }
+
+    .mobile-header {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%;
+        background: #fff;
+        padding: 15px 20px;
+        border-bottom: 1px solid #eee;
+        z-index: 2000;
+        justify-content: space-between;
+        align-items: center;
+        height: 70px;
+    }
+
+    .burger {
+        width: 40px; height: 40px;
+        display: flex; flex-direction: column;
+        justify-content: center; align-items: center;
+        gap: 5px; cursor: pointer;
+    }
+    .burger span { width: 24px; height: 2px; background: #000; border-radius: 2px; }
+
+    /* --- ТАБЛИЦА (FIXED LAYOUT) --- */
+    .table-container {
+        background: #fff;
+        border-radius: 15px;
+        border: 1px solid #eee;
+        overflow: hidden;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed; /* Фиксирует ширину колонок */
+    }
+
+    th {
+        background: #fafafa;
+        padding: 18px 25px;
+        text-align: left;
+        font-size: 12px;
+        color: #999;
+        text-transform: uppercase;
+        border-bottom: 1px solid #eee;
+    }
+
+    td {
+        padding: 20px 25px;
+        border-bottom: 1px solid #eee;
+        font-size: 15px;
+        word-wrap: break-word; /* Перенос длинного текста */
+    }
+
+    /* Пропорции колонок */
+    th:nth-child(1), td:nth-child(1) { width: 25%; }
+    th:nth-child(2), td:nth-child(2) { width: 60%; }
+    th:nth-child(3), td:nth-child(3) { width: 15%; text-align: right; }
+
+    /* --- КНОПКИ И ИНПУТЫ --- */
+    .edit-btn, .save-btn {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+        white-space: nowrap;
+    }
+
+    .edit-btn { background: #fff; border: 1px solid #eee; color: #333; }
+    .edit-btn:hover { background: #f9f9f9; }
+
+    .save-btn { background: #000; border: 1px solid #000; color: #fff; }
+
+    .table-input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 15px;
+        outline: none;
+        background: #fcfcfc;
+        display: block;
+        box-sizing: border-box;
+    }
+    /* Специально для ссылок в таблице, чтобы не меняли шрифт */
+        td a {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+        }
+    .table-input:focus { border-color: #000; background: #fff; }
+
+    /* --- АДАПТИВНОСТЬ (ПЛАНШЕТЫ И МОБИЛКИ) --- */
+    @media (max-width: 992px) {
+        .sidebar { transform: translateX(-100%); }
+        .sidebar.active { transform: translateX(0); box-shadow: 15px 0 30px rgba(0,0,0,0.1); }
+        .main-content { margin-left: 0; padding: 100px 20px 40px; }
+        .mobile-header { display: flex; }
+    }
+
+    /* Адаптивная таблица в карточки */
+    @media (max-width: 600px) {
+        table { table-layout: auto; }
+        thead { display: none; }
+
+        table, tbody, tr, td { display: block; width: 100% !important; }
+
+        tr { padding: 20px; border-bottom: 2px solid #f0f0f0; }
+
+        td {
+            padding: 10px 0;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            text-align: left !important;
+        }
+
+        td::before {
+            content: attr(data-label);
+            font-size: 11px;
+            color: #aaa;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        td:last-child {
+            align-items: flex-start;
+            margin-top: 10px;
+        }
+
+        .edit-btn, .save-btn { width: 100%; }
+    }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar-overlay" id="overlay"></div>
+
+    <div class="mobile-header">
+        <span style="font-weight: 600; font-size: 16px;">KUAT ADMIN</span>
+        <div class="burger" id="burgerBtn">
+            <span></span><span></span><span></span>
+        </div>
+    </div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">МЕНЮ УПРАВЛЕНИЯ</div>
+        <ul class="sidebar-menu">
+            <li><a href="main.html">Главная страница</a></li>
+            <li><a href="category.html">Категории продуктов</a></li>
+            <li><a href="products.html">Продукты</a></li>
+            <li><a href="requests.html">Заявки</a></li>
+            <li><a href="footer.html" class="active-link">Footer / Контакты</a></li>
+            <li><a href="partners.html">Партнеры</a></li>
+            <li><a href="change_password.html">Смена пароля</a></li>
+        </ul>
+
+        <button class="logout-btn" onclick="handleLogout()">Выйти из системы</button>
+    </aside>
+
+    <main class="main-content">
+        <h1>Настройки футера</h1>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Поле</th>
+                        <th>Значение</th>
+                        <th style="text-align: right;">Действие</th>
+                    </tr>
+                </thead>
+                <tbody id="footer-body">
+                    <tr>
+                        <td data-label="Поле"><strong>Заголовок контактов</strong></td>
+                        <td data-label="Значение" id="cell-contact_title">Загрузка...</td>
+                        <td style="text-align: right;">
+                            <button class="edit-btn" onclick="toggleEdit('contact_title')">Изменить</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td data-label="Поле"><strong>Email</strong></td>
+                        <td data-label="Значение" id="cell-contact_email">Загрузка...</td>
+                        <td style="text-align: right;">
+                            <button class="edit-btn" onclick="toggleEdit('contact_email')">Изменить</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td data-label="Поле"><strong>Телефоны</strong></td>
+                        <td data-label="Значение" id="cell-contact_phones">
+                            <div id="phones-list"></div>
+                        </td>
+                        <td style="text-align: right;">
+                            <button class="edit-btn" onclick="toggleEditPhones()">Управлять</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td data-label="Поле"><strong>Заголовок адреса</strong></td>
+                        <td data-label="Значение" id="cell-address_title">Загрузка...</td>
+                        <td style="text-align: right;">
+                            <button class="edit-btn" onclick="toggleEdit('address_title')">Изменить</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td data-label="Поle"><strong>Адрес (текст)</strong></td>
+                        <td data-label="Значение" id="cell-address">Загрузка...</td>
+                        <td style="text-align: right;">
+                            <button class="edit-btn" onclick="toggleEdit('address')">Изменить</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td data-label="Поле"><strong>Заголовок локации</strong></td>
+                        <td data-label="Значение" id="cell-location_title">Загрузка...</td>
+                        <td style="text-align: right;">
+                            <button class="edit-btn" onclick="toggleEdit('location_title')">Изменить</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td data-label="Поле"><strong>URL карты (Google/Yandex)</strong></td>
+                        <td data-label="Значение" id="cell-map_url" style="font-size: 12px; color: #666;">Загрузка...</td>
+                        <td style="text-align: right;">
+                            <button class="edit-btn" onclick="toggleEdit('map_url')">Изменить</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td data-label="Поле"><strong>Копирайт</strong></td>
+                        <td data-label="Значение" id="cell-copyright_text">Загрузка...</td>
+                        <td style="text-align: right;">
+                            <button class="edit-btn" onclick="toggleEdit('copyright_text')">Изменить</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+<script>
+    const API_FOOTER = 'https://kuat-admin.com/api/footer/';
+
+    // --- МОБИЛЬНОЕ МЕНЮ ---
+    const burgerBtn = document.getElementById('burgerBtn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+
+    function toggleMenu() {
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+    }
+
+    burgerBtn?.addEventListener('click', toggleMenu);
+    overlay?.addEventListener('click', toggleMenu);
+
+    // --- ЗАГРУЗКА ДАННЫХ ---
+    async function loadFooterData() {
+        try {
+            const res = await authorizedFetch(API_FOOTER);
+            if (!res || !res.ok) throw new Error("Fetch error");
+            const data = await res.json();
+
+            // Функция проверки: редактируется ли ячейка сейчас?
+            const isEditing = (id) => {
+                const cell = document.getElementById(id);
+                // Если внутри есть input или специальный контейнер редактирования телефонов
+                return cell && (cell.querySelector('input') || cell.querySelector('#phones-edit-container'));
+            };
+
+            const fields = [
+                'contact_title', 'contact_email', 'address_title',
+                'address', 'location_title', 'map_url', 'copyright_text'
+            ];
+
+            fields.forEach(f => {
+                const cellId = `cell-${f}`;
+                const el = document.getElementById(cellId);
+
+                if (el && !isEditing(cellId)) {
+                    const value = data[f] || '—';
+
+                    if (f === 'map_url' && value !== '—') {
+                        // Отображаем саму ссылку, делаем её синей и с подчеркиванием
+                        el.innerHTML = `
+                            <a href="${value}"
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               style="color: #0066cc; text-decoration: underline; font-size: 15px; word-break: break-all;">
+                               ${value}
+                            </a>`;
+                    } else {
+                        el.textContent = value;
+                        el.style.fontSize = "15px";
+                        el.style.color = "#333"; // Стандартный цвет для текста
+                    }
+                }
+            });
+
+            // Обновляем список телефонов только если режим редактирования выключен
+            if (!isEditing('cell-contact_phones')) {
+                renderPhones(data.contact_phones);
+            }
+
+        } catch (e) {
+            console.error("Ошибка загрузки футера:", e);
+        }
+    }
+
+    function renderPhones(phones) {
+        const container = document.getElementById('phones-list');
+        if (!container) {
+            // Если контейнера нет (например, после удаления инпутов),
+            // восстанавливаем базовую структуру в ячейке
+            const cell = document.getElementById('cell-contact_phones');
+            if (cell) {
+                cell.innerHTML = '<div id="phones-list"></div>';
+                renderPhones(phones); // Рекурсивно вызываем после восстановления
+            }
+            return;
+        }
+
+        if (!phones || phones.length === 0) {
+            container.innerHTML = '<span style="color: #999;">Список пуст</span>';
+            return;
+        }
+        container.innerHTML = phones.map(p => `
+            <div class="phone-tag" style="display: inline-block; background: #eee; padding: 4px 10px; border-radius: 6px; margin: 2px; font-size: 14px;">
+                ${p}
+            </div>
+        `).join('');
+    }
+
+    // --- РЕДАКТИРОВАНИЕ ТЕКСТА ---
+    function toggleEdit(field) {
+        const cell = document.getElementById(`cell-${field}`);
+        const btn = cell.closest('tr').querySelector('.edit-btn, .save-btn');
+
+        if (btn.textContent === 'Изменить') {
+            const currentVal = (cell.textContent === '—') ? '' : cell.textContent;
+            cell.innerHTML = `<input type="text" class="table-input" id="input-${field}" value="${currentVal}">`;
+            btn.textContent = 'Сохранить';
+            btn.className = 'save-btn';
+            btn.onclick = () => saveFooterUpdate(field, btn);
+        }
+    }
+
+    async function saveFooterUpdate(field, btn) {
+        const input = document.getElementById(`input-${field}`);
+        if (!input) return;
+
+        const newVal = input.value;
+        const cell = document.getElementById(`cell-${field}`);
+
+        btn.disabled = true;
+        btn.textContent = '...';
+
+        try {
+            const res = await authorizedFetch(API_FOOTER, {
+                method: 'PATCH',
+                body: JSON.stringify({ [field]: newVal })
+            });
+
+            if (res && res.ok) {
+                // Важно: убираем инпут вручную, чтобы loadFooterData увидел, что редактирование окончено
+                cell.innerHTML = '...';
+                await loadFooterData();
+                resetBtn(btn, field);
+            }
+        } catch (e) {
+            alert("Ошибка сохранения");
+            btn.disabled = false;
+            btn.textContent = 'Ошибка';
+        }
+    }
+
+    // --- УПРАВЛЕНИЕ ТЕЛЕФОНАМИ ---
+    function toggleEditPhones() {
+        const cell = document.getElementById('cell-contact_phones');
+        const btn = cell.closest('tr').querySelector('.edit-btn, .save-btn');
+
+        const currentPhones = Array.from(cell.querySelectorAll('.phone-tag')).map(d => d.textContent.trim());
+
+        let html = '<div id="phones-edit-container">';
+        currentPhones.forEach(p => {
+            html += createPhoneInputRow(p);
+        });
+        html += `</div><button class="edit-btn" style="margin-top: 10px; width: 100%;" onclick="addPhoneInput()">+ Добавить номер</button>`;
+
+        cell.innerHTML = html;
+        btn.textContent = 'Сохранить всё';
+        btn.className = 'save-btn';
+        btn.onclick = () => savePhones(btn);
+    }
+
+    function createPhoneInputRow(value = '') {
+        return `
+            <div style="display: flex; gap: 10px; margin-bottom: 8px;">
+                <input type="text"
+                       class="table-input phone-item"
+                       value="${value}"
+                       oninput="this.value = this.value.replace(/[^0-9+]/g, '')">
+                <button class="edit-btn" style="color: #ff4444; border-color: #ff4444;" onclick="this.parentElement.remove()">✕</button>
+            </div>`;
+    }
+
+    function addPhoneInput() {
+        const container = document.getElementById('phones-edit-container');
+        if (!container) return;
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = createPhoneInputRow();
+        container.appendChild(tempDiv.firstElementChild);
+    }
+
+    async function savePhones(btn) {
+        const phoneInputs = document.querySelectorAll('.phone-item');
+        const phonesArray = Array.from(phoneInputs)
+            .map(i => i.value.trim())
+            .filter(v => v !== '');
+
+        const cell = document.getElementById('cell-contact_phones');
+        btn.disabled = true;
+        btn.textContent = '...';
+
+        try {
+            const res = await authorizedFetch(API_FOOTER, {
+                method: 'PATCH',
+                body: JSON.stringify({ contact_phones: phonesArray })
+            });
+            if (res && res.ok) {
+                // Очищаем контейнер редактирования, чтобы вернуть обычный список
+                cell.innerHTML = '<div id="phones-list">...</div>';
+                await loadFooterData();
+
+                btn.textContent = 'Управлять';
+                btn.className = 'edit-btn';
+                btn.disabled = false;
+                btn.onclick = () => toggleEditPhones();
+            }
+        } catch (e) {
+            btn.disabled = false;
+            btn.textContent = 'Ошибка';
+        }
+    }
+
+    function resetBtn(btn, field) {
+        btn.textContent = 'Изменить';
+        btn.className = 'edit-btn';
+        btn.disabled = false;
+        btn.onclick = () => toggleEdit(field);
+    }
+
+    document.addEventListener('DOMContentLoaded', loadFooterData);
+</script>
+</body>
+</html>

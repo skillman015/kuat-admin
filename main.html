@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Главная страница</title>
+    <script src="static/js/auth.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+    /* --- БАЗОВЫЕ СТИЛИ --- */
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: 'Montserrat', sans-serif;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+        background-color: #f9f9f9;
+        color: #333;
+        display: flex;
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
+
+    h1 { font-size: 24px; margin-bottom: 25px; font-weight: 600; }
+
+    /* --- САЙДБАР --- */
+    .sidebar {
+        width: 280px;
+        background-color: #fff;
+        border-right: 1px solid #eee;
+        display: flex;
+        flex-direction: column;
+        padding: 30px 20px;
+        position: fixed;
+        height: 100vh;
+        left: 0; top: 0;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 3000;
+    }
+
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.4);
+        z-index: 2500;
+    }
+
+    .sidebar-overlay.active { display: block; }
+
+    .sidebar-header {
+        font-weight: 600;
+        font-size: 14px;
+        color: #aaa;
+        letter-spacing: 1.5px;
+        margin-bottom: 30px;
+        padding-left: 15px;
+    }
+
+    .sidebar-menu { list-style: none; flex-grow: 1; }
+    .sidebar-menu li { margin-bottom: 8px; }
+    .sidebar-menu a {
+        text-decoration: none;
+        color: #555;
+        font-size: 15px;
+        font-weight: 500;
+        padding: 14px 18px;
+        display: block;
+        border-radius: 10px;
+        transition: 0.2s;
+    }
+
+    .sidebar-menu a.active-link { background-color: #000; color: #fff; }
+    .sidebar-menu a:hover:not(.active-link) { background-color: #f0f0f0; }
+
+    .logout-btn {
+        width: 100%;
+        background-color: #f0f0f0;
+        color: #ff4444;
+        padding: 14px;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        margin-top: 20px;
+    }
+
+    /* --- ОСНОВНОЙ КОНТЕНТ --- */
+    .main-content {
+        flex-grow: 1;
+        margin-left: 280px;
+        padding: 40px;
+        transition: 0.3s;
+        width: 100%;
+    }
+
+    .mobile-header {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%;
+        background: #fff;
+        padding: 15px 20px;
+        border-bottom: 1px solid #eee;
+        z-index: 2000;
+        justify-content: space-between;
+        align-items: center;
+        height: 70px;
+    }
+
+    .burger {
+        width: 40px; height: 40px;
+        display: flex; flex-direction: column;
+        justify-content: center; align-items: center;
+        gap: 5px; cursor: pointer;
+    }
+    .burger span { width: 24px; height: 2px; background: #000; border-radius: 2px; }
+
+    /* --- ТАБЛИЦА (FIXED LAYOUT) --- */
+    .table-container {
+        background: #fff;
+        border-radius: 15px;
+        border: 1px solid #eee;
+        overflow: hidden;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed; /* Фиксирует ширину колонок */
+    }
+
+    th {
+        background: #fafafa;
+        padding: 18px 25px;
+        text-align: left;
+        font-size: 12px;
+        color: #999;
+        text-transform: uppercase;
+        border-bottom: 1px solid #eee;
+    }
+
+    td {
+        padding: 20px 25px;
+        border-bottom: 1px solid #eee;
+        font-size: 15px;
+        word-wrap: break-word; /* Перенос длинного текста */
+    }
+
+    /* Пропорции колонок */
+    th:nth-child(1), td:nth-child(1) { width: 25%; }
+    th:nth-child(2), td:nth-child(2) { width: 60%; }
+    th:nth-child(3), td:nth-child(3) { width: 15%; text-align: right; }
+
+    /* --- КНОПКИ И ИНПУТЫ --- */
+    .edit-btn, .save-btn {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+        white-space: nowrap;
+    }
+
+    .edit-btn { background: #fff; border: 1px solid #eee; color: #333; }
+    .edit-btn:hover { background: #f9f9f9; }
+
+    .save-btn { background: #000; border: 1px solid #000; color: #fff; }
+
+    .table-input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 15px;
+        outline: none;
+        background: #fcfcfc;
+        display: block;
+        box-sizing: border-box;
+    }
+    .table-input:focus { border-color: #000; background: #fff; }
+
+    /* --- АДАПТИВНОСТЬ (ПЛАНШЕТЫ И МОБИЛКИ) --- */
+    @media (max-width: 992px) {
+        .sidebar { transform: translateX(-100%); }
+        .sidebar.active { transform: translateX(0); box-shadow: 15px 0 30px rgba(0,0,0,0.1); }
+        .main-content { margin-left: 0; padding: 100px 20px 40px; }
+        .mobile-header { display: flex; }
+    }
+
+    /* Адаптивная таблица в карточки */
+    @media (max-width: 600px) {
+        table { table-layout: auto; }
+        thead { display: none; }
+
+        table, tbody, tr, td { display: block; width: 100% !important; }
+
+        tr { padding: 20px; border-bottom: 2px solid #f0f0f0; }
+
+        td {
+            padding: 10px 0;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            text-align: left !important;
+        }
+
+        td::before {
+            content: attr(data-label);
+            font-size: 11px;
+            color: #aaa;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        td:last-child {
+            align-items: flex-start;
+            margin-top: 10px;
+        }
+
+        .edit-btn, .save-btn { width: 100%; }
+    }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar-overlay" id="overlay"></div>
+
+    <div class="mobile-header">
+        <span style="font-weight: 600; font-size: 16px;">KUAT ADMIN</span>
+        <div class="burger" id="burgerBtn">
+            <span></span><span></span><span></span>
+        </div>
+    </div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">МЕНЮ УПРАВЛЕНИЯ</div>
+        <ul class="sidebar-menu">
+            <li><a href="main.html" class="active-link">Главная страница</a></li>
+            <li><a href="category.html">Категории продуктов</a></li>
+            <li><a href="products.html">Продукты</a></li>
+            <li><a href="requests.html">Заявки</a></li>
+            <li><a href="footer.html">Footer / Контакты</a></li>
+            <li><a href="partners.html">Партнеры</a></li>
+            <li><a href="change_password.html">Смена пароля</a></li>
+        </ul>
+
+        <button class="logout-btn" onclick="handleLogout()">Выйти из системы</button>
+    </aside>
+
+    <main class="main-content">
+        <h1>Главная страница</h1>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Поле</th>
+                        <th>Значение</th>
+                        <th style="text-align: right;">Действие</th>
+                    </tr>
+                </thead>
+                <tbody id="data-body">
+                    <tr>
+                        <td data-label="Поле"><strong>Заголовок (Title)</strong></td>
+                        <td data-label="Значение" id="cell-title">Загрузка...</td>
+                        <td style="text-align: right;">
+                            <button class="edit-btn" onclick="toggleEdit('title')">Изменить</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td data-label="Поле"><strong>Подзаголовок (Subtitle)</strong></td>
+                        <td data-label="Значение" id="cell-subtitle">Загрузка...</td>
+                        <td style="text-align: right;">
+                            <button class="edit-btn" onclick="toggleEdit('subtitle')">Изменить</button>
+                        </td>
+                    </tr>
+                   <tr>
+                        <td data-label="Поле"><strong>Фон (Background)</strong></td>
+                        <td data-label="Значение" id="cell-bg">
+                            <div id="bg-container" style="display: flex; align-items: center; gap: 15px;">
+                                <a id="bg-link" href="#" download title="Нажмите, чтобы скачать оригинал">
+                                    <img id="bg-preview" src="" alt="Превью"
+                                         style="width: 100px; height: 56px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd; display: none; cursor: pointer; transition: opacity 0.2s;">
+                                </a>
+                                <span id="bg-text">Загрузка...</span>
+                            </div>
+                        </td>
+                        <td style="text-align: right;">
+                            <button class="edit-btn" onclick="toggleEdit('background_image')">Изменить</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+    // --- ИНИЦИАЛИЗАЦИЯ ---
+    const API_BASE = 'https://kuat-admin.com/api/main-page/';
+    const burgerBtn = document.getElementById('burgerBtn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+
+    // --- МОБИЛЬНОЕ МЕНЮ ---
+    function toggleMenu() {
+        const isActive = sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+        document.body.style.overflow = isActive ? 'hidden' : '';
+    }
+
+    burgerBtn?.addEventListener('click', toggleMenu);
+    overlay?.addEventListener('click', toggleMenu);
+
+    // --- API: ЗАГРУЗКА ДАННЫХ ---
+    async function loadData() {
+    try {
+        const res = await authorizedFetch(API_BASE);
+        if (!res || !res.ok) throw new Error("API response error");
+        const data = await res.json();
+
+        // Функция-помощник: проверяет, не редактируется ли поле прямо сейчас
+        const isEditing = (id) => {
+            const cell = document.getElementById(id);
+            return cell && cell.querySelector('input');
+        };
+
+        // 1. Обновляем текстовые поля (ТОЛЬКО если они не редактируются)
+        if (document.getElementById('cell-title') && !isEditing('cell-title')) {
+            document.getElementById('cell-title').textContent = data.title;
+        }
+
+        if (document.getElementById('cell-subtitle') && !isEditing('cell-subtitle')) {
+            document.getElementById('cell-subtitle').textContent = data.subtitle;
+        }
+
+        // 2. Логика для картинки
+        const cellBg = document.getElementById('cell-bg');
+        // Обновляем картинку ТОЛЬКО если там нет инпута выбора файла
+        if (data.background_image && cellBg && !isEditing('cell-bg')) {
+            const encodedPath = encodeURI(data.background_image);
+            const cacheBuster = `?t=${new Date().getTime()}`;
+            const baseUri = encodedPath.startsWith('http') ? encodedPath : `https://kuat-admin.com${encodedPath}`;
+            const fullUrl = baseUri + cacheBuster;
+
+            cellBg.innerHTML = `
+                <div id="bg-container" style="display: flex; align-items: center; gap: 15px;">
+                    <a id="bg-link" href="${fullUrl}" download title="Нажмите, чтобы скачать оригинал">
+                        <img id="bg-preview" src="${fullUrl}" alt="Превью"
+                             style="width: 100px; height: 56px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd; cursor: pointer; display: block;">
+                    </a>
+                    <span id="bg-text" style="display: none;">Загрузка...</span>
+                </div>
+            `;
+        }
+    } catch (e) {
+        console.error("Критическая ошибка loadData:", e);
+    }
+}
+
+    function toggleEdit(field) {
+        const cellId = field === 'background_image' ? 'cell-bg' : `cell-${field}`;
+        const cell = document.getElementById(cellId);
+        const btn = cell.closest('tr').querySelector('.edit-btn, .save-btn');
+
+        if (btn.textContent === 'Изменить') {
+            if (field === 'background_image') {
+                // Для картинки создаем File Input
+                cell.innerHTML = `<input type="file" id="input-${field}" accept="image/*" class="table-input">`;
+            } else {
+                // Для текста создаем Text Input
+                const currentVal = cell.textContent;
+                cell.innerHTML = `<input type="text" class="table-input" id="input-${field}" value="${currentVal}">`;
+            }
+
+            btn.textContent = 'Сохранить';
+            btn.className = 'save-btn';
+            btn.onclick = () => saveUpdate(field, btn);
+        }
+    }
+
+    // --- API: СОХРАНЕНИЕ ---
+    async function saveUpdate(field, btn) {
+    const input = document.getElementById(`input-${field}`);
+    if (!input) return;
+
+    let body;
+    let headers = {};
+
+    if (field === 'background_image') {
+        // ПРОВЕРКА: Если нажали "Сохранить", но файл не выбрали
+        if (!input.files || input.files.length === 0) {
+            const cell = document.getElementById('cell-bg');
+
+            // 1. Очищаем ячейку от инпута, чтобы loadData не счел её "редактируемой"
+            cell.innerHTML = '<span style="color: #999;">Возврат...</span>';
+
+            // 2. Загружаем старые данные
+            await loadData();
+
+            // 3. Возвращаем кнопку в исходное состояние
+            resetBtn(btn, field);
+            return; // Прерываем функцию, запрос на сервер не шлем
+        }
+
+        // Если файл выбран — продолжаем стандартную процедуру
+        body = new FormData();
+        body.append(field, input.files[0]);
+    } else {
+        // Логика для текстовых полей
+        body = JSON.stringify({ [field]: input.value });
+        headers['Content-Type'] = 'application/json';
+    }
+
+    // --- ДАЛЕЕ СТАНДАРТНЫЙ КОД ОТПРАВКИ НА СЕРВЕР ---
+    btn.disabled = true;
+    btn.textContent = '...';
+
+    try {
+        const res = await authorizedFetch(API_BASE, {
+            method: 'PATCH',
+            headers: headers,
+            body: body
+        });
+
+        if (res && res.ok) {
+            const cellId = field === 'background_image' ? 'cell-bg' : `cell-${field}`;
+            const cell = document.getElementById(cellId);
+
+            // Очищаем ячейку перед loadData, чтобы снять статус "isEditing"
+            cell.innerHTML = '...';
+
+            await loadData();
+            resetBtn(btn, field);
+        } else {
+            throw new Error("Ошибка сервера");
+        }
+    } catch (e) {
+        console.error("Ошибка сохранения:", e);
+        btn.disabled = false;
+        btn.textContent = 'Ошибка';
+        setTimeout(() => { btn.textContent = 'Сохранить'; }, 2000);
+    }
+}
+
+    // Вспомогательная функция для сброса кнопки
+    function resetBtn(btn, field) {
+        btn.textContent = 'Изменить';
+        btn.className = 'edit-btn';
+        btn.disabled = false;
+        btn.onclick = () => toggleEdit(field);
+    }
+
+    // --- ВЫХОД ---
+    function handleLogout() {
+        localStorage.clear();
+        window.location.href = 'index.html';
+    }
+
+    document.addEventListener('DOMContentLoaded', loadData);
+</script>
+</body>
+</html>
