@@ -152,9 +152,10 @@
     }
 
     /* Пропорции колонок */
-    th:nth-child(1), td:nth-child(1) { width: 25%; }
-    th:nth-child(2), td:nth-child(2) { width: 60%; }
-    th:nth-child(3), td:nth-child(3) { width: 15%; text-align: right; }
+    /* Пропорции колонок: перераспределяем место */
+    th:nth-child(1), td:nth-child(1) { width: 25%; } /* Поле */
+    th:nth-child(2), td:nth-child(2) { width: 55%; } /* Значение */
+    th:nth-child(3), td:nth-child(3) { width: 20%; text-align: right; min-width: 160px; } /* Действие */
 
     /* --- КНОПКИ И ИНПУТЫ --- */
     .edit-btn, .save-btn {
@@ -225,6 +226,17 @@
         }
 
         .edit-btn, .save-btn { width: 100%; }
+
+        td:last-child div {
+            justify-content: flex-start !important; /* На мобилках кнопки слева */
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .save-btn, .edit-btn {
+            flex: 1; /* Кнопки делят ширину поровну на мобилках */
+            text-align: center;
+        }
     }
     </style>
 </head>
@@ -240,8 +252,9 @@
     </div>
 
     <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">МЕНЮ УПРАВЛЕНИЯ</div>
+        <div class="sidebar-header">KUAT SOLUTIONS</div>
         <ul class="sidebar-menu">
+            <li><a href="main_page.html">Панель управления</a></li>
             <li><a href="main.html" class="active-link">Главная страница</a></li>
             <li><a href="category.html">Категории продуктов</a></li>
             <li><a href="products.html">Продукты</a></li>
@@ -367,22 +380,26 @@
     function toggleEdit(field) {
         const cellId = field === 'background_image' ? 'cell-bg' : `cell-${field}`;
         const cell = document.getElementById(cellId);
-        const btn = cell.closest('tr').querySelector('.edit-btn, .save-btn');
+        const actionCell = cell.closest('tr').querySelector('td:last-child');
 
-        if (btn.textContent === 'Изменить') {
-            if (field === 'background_image') {
-                // Для картинки создаем File Input
-                cell.innerHTML = `<input type="file" id="input-${field}" accept="image/*" class="table-input">`;
-            } else {
-                // Для текста создаем Text Input
-                const currentVal = cell.textContent;
-                cell.innerHTML = `<input type="text" class="table-input" id="input-${field}" value="${currentVal}">`;
-            }
-
-            btn.textContent = 'Сохранить';
-            btn.className = 'save-btn';
-            btn.onclick = () => saveUpdate(field, btn);
+        if (!cell.hasAttribute('data-prev-content')) {
+            cell.setAttribute('data-prev-content', cell.innerHTML);
         }
+
+        if (field === 'background_image') {
+            cell.innerHTML = `<input type="file" id="input-${field}" accept="image/*" class="table-input">`;
+        } else {
+            const currentVal = cell.textContent;
+            cell.innerHTML = `<input type="text" class="table-input" id="input-${field}" value="${currentVal}">`;
+        }
+
+        // Добавляем контейнер с flex-wrap и выравниванием
+        actionCell.innerHTML = `
+            <div style="display: flex; gap: 8px; justify-content: flex-end; flex-wrap: nowrap; align-items: center;">
+                <button class="save-btn" onclick="saveUpdate('${field}', this)">Сохранить</button>
+                <button class="edit-btn" style="color: #666; background: #eee;" onclick="cancelEdit('${field}', this)">Отмена</button>
+            </div>
+        `;
     }
 
     // --- API: СОХРАНЕНИЕ ---
@@ -449,12 +466,35 @@
     }
 }
 
-    // Вспомогательная функция для сброса кнопки
+function cancelEdit(field, btn) {
+    const cellId = field === 'background_image' ? 'cell-bg' : `cell-${field}`;
+    const cell = document.getElementById(cellId);
+    const actionCell = cell.closest('tr').querySelector('td:last-child');
+
+    // Возвращаем старый контент
+    if (cell.hasAttribute('data-prev-content')) {
+        cell.innerHTML = cell.getAttribute('data-prev-content');
+        cell.removeAttribute('data-prev-content');
+    }
+
+    // Возвращаем кнопку "Изменить"
+    actionCell.innerHTML = `
+        <button class="edit-btn" onclick="toggleEdit('${field}')">Изменить</button>
+    `;
+}
+
     function resetBtn(btn, field) {
-        btn.textContent = 'Изменить';
-        btn.className = 'edit-btn';
-        btn.disabled = false;
-        btn.onclick = () => toggleEdit(field);
+        const actionCell = btn.closest('tr').querySelector('td:last-child');
+        const cellId = field === 'background_image' ? 'cell-bg' : `cell-${field}`;
+        const cell = document.getElementById(cellId);
+
+        // Удаляем временный буфер данных
+        cell.removeAttribute('data-prev-content');
+
+        // Возвращаем только одну кнопку "Изменить"
+        actionCell.innerHTML = `
+            <button class="edit-btn" onclick="toggleEdit('${field}')">Изменить</button>
+        `;
     }
 
     // --- ВЫХОД ---

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Панель управления</title>
+    <script src="static/js/auth.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+    /* --- БАЗОВЫЕ СТИЛИ --- */
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: 'Montserrat', sans-serif;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+        background-color: #f9f9f9;
+        color: #333;
+        display: flex;
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
+
+    h1 { font-size: 24px; margin-bottom: 25px; font-weight: 600; }
+
+    /* --- САЙДБАР --- */
+    .sidebar {
+        width: 280px;
+        background-color: #fff;
+        border-right: 1px solid #eee;
+        display: flex;
+        flex-direction: column;
+        padding: 30px 20px;
+        position: fixed;
+        height: 100vh;
+        left: 0; top: 0;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 3000;
+    }
+
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.4);
+        z-index: 2500;
+    }
+
+    .sidebar-overlay.active { display: block; }
+
+    .sidebar-header {
+        font-weight: 600;
+        font-size: 14px;
+        color: #aaa;
+        letter-spacing: 1.5px;
+        margin-bottom: 30px;
+        padding-left: 15px;
+    }
+
+    .sidebar-menu { list-style: none; flex-grow: 1; }
+    .sidebar-menu li { margin-bottom: 8px; }
+    .sidebar-menu a {
+        text-decoration: none;
+        color: #555;
+        font-size: 15px;
+        font-weight: 500;
+        padding: 14px 18px;
+        display: block;
+        border-radius: 10px;
+        transition: 0.2s;
+    }
+
+    .sidebar-menu a.active-link { background-color: #000; color: #fff; }
+    .sidebar-menu a:hover:not(.active-link) { background-color: #f0f0f0; }
+
+    .logout-btn {
+        width: 100%;
+        background-color: #f0f0f0;
+        color: #ff4444;
+        padding: 14px;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        margin-top: 20px;
+    }
+
+    /* --- ОСНОВНОЙ КОНТЕНТ --- */
+    .main-content {
+        flex-grow: 1;
+        margin-left: 280px;
+        padding: 40px;
+        transition: 0.3s;
+        width: 100%;
+    }
+
+    .mobile-header {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%;
+        background: #fff;
+        padding: 15px 20px;
+        border-bottom: 1px solid #eee;
+        z-index: 2000;
+        justify-content: space-between;
+        align-items: center;
+        height: 70px;
+    }
+
+    .burger {
+        width: 40px; height: 40px;
+        display: flex; flex-direction: column;
+        justify-content: center; align-items: center;
+        gap: 5px; cursor: pointer;
+    }
+    .burger span { width: 24px; height: 2px; background: #000; border-radius: 2px; }
+
+    /* --- ОБНОВЛЕННЫЕ СТИЛИ ДАШБОРДА --- */
+    .dashboard-header {
+        margin-bottom: 30px;
+    }
+    .dashboard-header p {
+        color: #888;
+        font-size: 14px;
+    }
+
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr; /* Сетка: одна большая и две маленькие карточки */
+        gap: 20px;
+    }
+
+    .info-card {
+        background: #fff;
+        padding: 25px;
+        border-radius: 16px;
+        border: 1px solid #eee;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .info-card.welcome {
+        flex-direction: row;
+        align-items: center;
+        gap: 20px;
+        text-align: left;
+    }
+
+    .card-icon {
+        font-size: 40px;
+    }
+
+    .info-card h3 {
+        font-size: 18px;
+        margin-bottom: 5px;
+    }
+
+    .info-card p {
+        font-size: 14px;
+        color: #666;
+        line-height: 1.4;
+    }
+
+    .stat-label {
+        font-size: 12px;
+        color: #aaa;
+        text-transform: uppercase;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .stat-value {
+        font-size: 20px;
+        font-weight: 600;
+    }
+
+    /* Адаптивность дашборда */
+    @media (max-width: 1200px) {
+        .dashboard-grid { grid-template-columns: 1fr 1fr; }
+        .info-card.welcome { grid-column: span 2; }
+    }
+
+    @media (max-width: 600px) {
+        .dashboard-grid { grid-template-columns: 1fr; }
+        .info-card.welcome { grid-column: span 1; }
+    }
+
+    .quick-stats {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        border-top: 1px solid #f5f5f5;
+        padding-top: 30px;
+    }
+
+    .stat-item {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .stat-label {
+        font-size: 11px;
+        color: #aaa;
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+
+    .stat-value {
+        font-size: 16px;
+        font-weight: 500;
+    }
+
+    @media (max-width: 600px) {
+        .welcome-card { padding: 40px 20px; }
+        .quick-stats { gap: 20px; }
+    }
+
+    /* --- АДАПТИВНОСТЬ (ПЛАНШЕТЫ И МОБИЛКИ) --- */
+    @media (max-width: 992px) {
+        .sidebar { transform: translateX(-100%); }
+        .sidebar.active { transform: translateX(0); box-shadow: 15px 0 30px rgba(0,0,0,0.1); }
+        .main-content { margin-left: 0; padding: 100px 20px 40px; }
+        .mobile-header { display: flex; }
+    }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar-overlay" id="overlay"></div>
+
+    <div class="mobile-header">
+        <span style="font-weight: 600; font-size: 16px;">KUAT ADMIN</span>
+        <div class="burger" id="burgerBtn">
+            <span></span><span></span><span></span>
+        </div>
+    </div>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">KUAT SOLUTIONS</div>
+        <ul class="sidebar-menu">
+            <li><a href="main_page.html" class="active-link">Панель управления</a></li>
+            <li><a href="main.html">Главная страница</a></li>
+            <li><a href="category.html">Категории продуктов</a></li>
+            <li><a href="products.html">Продукты</a></li>
+            <li><a href="requests.html">Заявки</a></li>
+            <li><a href="footer.html">Footer / Контакты</a></li>
+            <li><a href="partners.html">Партнеры</a></li>
+            <li><a href="change_password.html">Смена пароля</a></li>
+        </ul>
+
+        <button class="logout-btn" onclick="handleLogout()">Выйти из системы</button>
+    </aside>
+
+    <main class="main-content">
+        <div class="dashboard-header">
+            <h1>Добро пожаловать в систему администрирования Kuat Solutions</h1>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="info-card welcome">
+                <div class="card-icon">👋</div>
+                <div class="card-content">
+                    <h3>Здравствуйте!</h3>
+                    <p>Используйте меню для навигации по разделам сайта. Все изменения применяются в реальном времени.</p>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <div class="stat-label">Текущая дата</div>
+                <div class="stat-value" id="current-date">--.--.----</div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+
+   document.addEventListener('DOMContentLoaded', () => {
+        // 1. Установка даты
+        const dateElement = document.getElementById('current-date');
+        if (dateElement) {
+            const now = new Date();
+            dateElement.textContent = now.toLocaleDateString('ru-RU', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        }
+
+        // 2. Логика мобильного меню
+        const burgerBtn = document.getElementById('burgerBtn');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        if (burgerBtn && sidebar && overlay) {
+            const toggleMenu = () => {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+                // Запрещаем прокрутку фона при открытом меню
+                document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+            };
+
+            burgerBtn.addEventListener('click', toggleMenu);
+            overlay.addEventListener('click', toggleMenu);
+        }
+    });
+
+    // --- ВЫХОД ---
+    function handleLogout() {
+        localStorage.clear();
+        window.location.href = 'index.html';
+    }
+
+</script>
+</body>
+</html>

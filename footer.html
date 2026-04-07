@@ -120,7 +120,7 @@
     }
     .burger span { width: 24px; height: 2px; background: #000; border-radius: 2px; }
 
-    /* --- ТАБЛИЦА (FIXED LAYOUT) --- */
+    /* --- ТАБЛИЦА --- */
     .table-container {
         background: #fff;
         border-radius: 15px;
@@ -131,7 +131,7 @@
     table {
         width: 100%;
         border-collapse: collapse;
-        table-layout: fixed; /* Фиксирует ширину колонок */
+        table-layout: fixed;
     }
 
     th {
@@ -148,29 +148,33 @@
         padding: 20px 25px;
         border-bottom: 1px solid #eee;
         font-size: 15px;
-        word-wrap: break-word; /* Перенос длинного текста */
+        word-wrap: break-word;
     }
 
-    /* Пропорции колонок */
+    /* Пропорции */
     th:nth-child(1), td:nth-child(1) { width: 25%; }
-    th:nth-child(2), td:nth-child(2) { width: 60%; }
-    th:nth-child(3), td:nth-child(3) { width: 15%; text-align: right; }
+    th:nth-child(2), td:nth-child(2) { width: 55%; }
+    th:nth-child(3), td:nth-child(3) { width: 20%; text-align: right; min-width: 180px; }
 
     /* --- КНОПКИ И ИНПУТЫ --- */
-    .edit-btn, .save-btn {
-        padding: 10px 20px;
+    .edit-btn, .save-btn, .cancel-btn {
+        padding: 10px 18px;
         border-radius: 8px;
         font-size: 13px;
         font-weight: 600;
         cursor: pointer;
         transition: 0.2s;
         white-space: nowrap;
+        border: none;
     }
 
     .edit-btn { background: #fff; border: 1px solid #eee; color: #333; }
     .edit-btn:hover { background: #f9f9f9; }
 
-    .save-btn { background: #000; border: 1px solid #000; color: #fff; }
+    .save-btn { background: #000; color: #fff; }
+    .save-btn:hover { background: #333; }
+
+    .cancel-btn { background: #eee; color: #666; margin-left: 5px; }
 
     .table-input {
         width: 100%;
@@ -181,16 +185,20 @@
         outline: none;
         background: #fcfcfc;
         display: block;
-        box-sizing: border-box;
     }
-    /* Специально для ссылок в таблице, чтобы не меняли шрифт */
-        td a {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 500;
-        }
     .table-input:focus { border-color: #000; background: #fff; }
 
-    /* --- АДАПТИВНОСТЬ (ПЛАНШЕТЫ И МОБИЛКИ) --- */
+    .phone-tag {
+        display: inline-block;
+        background: #f0f0f0;
+        padding: 4px 10px;
+        border-radius: 6px;
+        margin: 2px;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    /* Адаптивность */
     @media (max-width: 992px) {
         .sidebar { transform: translateX(-100%); }
         .sidebar.active { transform: translateX(0); box-shadow: 15px 0 30px rgba(0,0,0,0.1); }
@@ -198,23 +206,12 @@
         .mobile-header { display: flex; }
     }
 
-    /* Адаптивная таблица в карточки */
     @media (max-width: 600px) {
         table { table-layout: auto; }
         thead { display: none; }
-
         table, tbody, tr, td { display: block; width: 100% !important; }
-
         tr { padding: 20px; border-bottom: 2px solid #f0f0f0; }
-
-        td {
-            padding: 10px 0;
-            border: none;
-            display: flex;
-            flex-direction: column;
-            text-align: left !important;
-        }
-
+        td { padding: 10px 0; border: none; }
         td::before {
             content: attr(data-label);
             font-size: 11px;
@@ -222,14 +219,10 @@
             text-transform: uppercase;
             margin-bottom: 5px;
             font-weight: 600;
+            display: block;
         }
-
-        td:last-child {
-            align-items: flex-start;
-            margin-top: 10px;
-        }
-
-        .edit-btn, .save-btn { width: 100%; }
+        .edit-btn, .save-btn, .cancel-btn { width: 100%; margin: 5px 0; }
+        .actions-flex { flex-direction: column; }
     }
     </style>
 </head>
@@ -245,8 +238,9 @@
     </div>
 
     <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">МЕНЮ УПРАВЛЕНИЯ</div>
+        <div class="sidebar-header">KUAT SOLUTIONS</div>
         <ul class="sidebar-menu">
+            <li><a href="main_page.html">Панель управления</a></li>
             <li><a href="main.html">Главная страница</a></li>
             <li><a href="category.html">Категории продуктов</a></li>
             <li><a href="products.html">Продукты</a></li>
@@ -255,7 +249,6 @@
             <li><a href="partners.html">Партнеры</a></li>
             <li><a href="change_password.html">Смена пароля</a></li>
         </ul>
-
         <button class="logout-btn" onclick="handleLogout()">Выйти из системы</button>
     </aside>
 
@@ -272,61 +265,61 @@
                     </tr>
                 </thead>
                 <tbody id="footer-body">
-                    <tr>
+                    <tr id="row-contact_title">
                         <td data-label="Поле"><strong>Заголовок контактов</strong></td>
-                        <td data-label="Значение" id="cell-contact_title">Загрузка...</td>
-                        <td style="text-align: right;">
+                        <td data-label="Значение" class="cell-content">Загрузка...</td>
+                        <td style="text-align: right;" class="cell-actions">
                             <button class="edit-btn" onclick="toggleEdit('contact_title')">Изменить</button>
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="row-contact_email">
                         <td data-label="Поле"><strong>Email</strong></td>
-                        <td data-label="Значение" id="cell-contact_email">Загрузка...</td>
-                        <td style="text-align: right;">
+                        <td data-label="Значение" class="cell-content">Загрузка...</td>
+                        <td style="text-align: right;" class="cell-actions">
                             <button class="edit-btn" onclick="toggleEdit('contact_email')">Изменить</button>
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="row-contact_phones">
                         <td data-label="Поле"><strong>Телефоны</strong></td>
-                        <td data-label="Значение" id="cell-contact_phones">
+                        <td data-label="Значение" class="cell-content">
                             <div id="phones-list"></div>
                         </td>
-                        <td style="text-align: right;">
+                        <td style="text-align: right;" class="cell-actions">
                             <button class="edit-btn" onclick="toggleEditPhones()">Управлять</button>
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="row-address_title">
                         <td data-label="Поле"><strong>Заголовок адреса</strong></td>
-                        <td data-label="Значение" id="cell-address_title">Загрузка...</td>
-                        <td style="text-align: right;">
+                        <td data-label="Значение" class="cell-content">Загрузка...</td>
+                        <td style="text-align: right;" class="cell-actions">
                             <button class="edit-btn" onclick="toggleEdit('address_title')">Изменить</button>
                         </td>
                     </tr>
-                    <tr>
-                        <td data-label="Поle"><strong>Адрес (текст)</strong></td>
-                        <td data-label="Значение" id="cell-address">Загрузка...</td>
-                        <td style="text-align: right;">
+                    <tr id="row-address">
+                        <td data-label="Поле"><strong>Адрес (текст)</strong></td>
+                        <td data-label="Значение" class="cell-content">Загрузка...</td>
+                        <td style="text-align: right;" class="cell-actions">
                             <button class="edit-btn" onclick="toggleEdit('address')">Изменить</button>
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="row-location_title">
                         <td data-label="Поле"><strong>Заголовок локации</strong></td>
-                        <td data-label="Значение" id="cell-location_title">Загрузка...</td>
-                        <td style="text-align: right;">
+                        <td data-label="Значение" class="cell-content">Загрузка...</td>
+                        <td style="text-align: right;" class="cell-actions">
                             <button class="edit-btn" onclick="toggleEdit('location_title')">Изменить</button>
                         </td>
                     </tr>
-                    <tr>
-                        <td data-label="Поле"><strong>URL карты (Google/Yandex)</strong></td>
-                        <td data-label="Значение" id="cell-map_url" style="font-size: 12px; color: #666;">Загрузка...</td>
-                        <td style="text-align: right;">
+                    <tr id="row-map_url">
+                        <td data-label="Поле"><strong>URL карты</strong></td>
+                        <td data-label="Значение" class="cell-content">Загрузка...</td>
+                        <td style="text-align: right;" class="cell-actions">
                             <button class="edit-btn" onclick="toggleEdit('map_url')">Изменить</button>
                         </td>
                     </tr>
-                    <tr>
+                    <tr id="row-copyright_text">
                         <td data-label="Поле"><strong>Копирайт</strong></td>
-                        <td data-label="Значение" id="cell-copyright_text">Загрузка...</td>
-                        <td style="text-align: right;">
+                        <td data-label="Значение" class="cell-content">Загрузка...</td>
+                        <td style="text-align: right;" class="cell-actions">
                             <button class="edit-btn" onclick="toggleEdit('copyright_text')">Изменить</button>
                         </td>
                     </tr>
@@ -338,214 +331,174 @@
 <script>
     const API_FOOTER = 'https://kuat-admin.com/api/footer/';
 
-    // --- МОБИЛЬНОЕ МЕНЮ ---
+    // Меню
     const burgerBtn = document.getElementById('burgerBtn');
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('overlay');
-
-    function toggleMenu() {
-        sidebar.classList.toggle('active');
-        overlay.classList.toggle('active');
-    }
-
+    function toggleMenu() { sidebar.classList.toggle('active'); overlay.classList.toggle('active'); }
     burgerBtn?.addEventListener('click', toggleMenu);
     overlay?.addEventListener('click', toggleMenu);
 
-    // --- ЗАГРУЗКА ДАННЫХ ---
+    // Загрузка данных
     async function loadFooterData() {
         try {
             const res = await authorizedFetch(API_FOOTER);
-            if (!res || !res.ok) throw new Error("Fetch error");
+            if (!res.ok) throw new Error("API Error");
             const data = await res.json();
 
-            // Функция проверки: редактируется ли ячейка сейчас?
-            const isEditing = (id) => {
-                const cell = document.getElementById(id);
-                // Если внутри есть input или специальный контейнер редактирования телефонов
-                return cell && (cell.querySelector('input') || cell.querySelector('#phones-edit-container'));
-            };
-
-            const fields = [
-                'contact_title', 'contact_email', 'address_title',
-                'address', 'location_title', 'map_url', 'copyright_text'
-            ];
+            const fields = ['contact_title', 'contact_email', 'address_title', 'address', 'location_title', 'map_url', 'copyright_text'];
 
             fields.forEach(f => {
-                const cellId = `cell-${f}`;
-                const el = document.getElementById(cellId);
-
-                if (el && !isEditing(cellId)) {
-                    const value = data[f] || '—';
-
-                    if (f === 'map_url' && value !== '—') {
-                        // Отображаем саму ссылку, делаем её синей и с подчеркиванием
-                        el.innerHTML = `
-                            <a href="${value}"
-                               target="_blank"
-                               rel="noopener noreferrer"
-                               style="color: #0066cc; text-decoration: underline; font-size: 15px; word-break: break-all;">
-                               ${value}
-                            </a>`;
+                const row = document.getElementById(`row-${f}`);
+                const cell = row.querySelector('.cell-content');
+                if (!row.hasAttribute('data-editing')) {
+                    const val = data[f] || '—';
+                    if (f === 'map_url' && val !== '—') {
+                        cell.innerHTML = `<a href="${val}" target="_blank" style="color:#0066cc; text-decoration:underline;">${val}</a>`;
                     } else {
-                        el.textContent = value;
-                        el.style.fontSize = "15px";
-                        el.style.color = "#333"; // Стандартный цвет для текста
+                        cell.textContent = val;
                     }
                 }
             });
 
-            // Обновляем список телефонов только если режим редактирования выключен
-            if (!isEditing('cell-contact_phones')) {
+            if (!document.getElementById('row-contact_phones').hasAttribute('data-editing')) {
                 renderPhones(data.contact_phones);
             }
-
-        } catch (e) {
-            console.error("Ошибка загрузки футера:", e);
-        }
+        } catch (e) { console.error(e); }
     }
 
     function renderPhones(phones) {
         const container = document.getElementById('phones-list');
-        if (!container) {
-            // Если контейнера нет (например, после удаления инпутов),
-            // восстанавливаем базовую структуру в ячейке
-            const cell = document.getElementById('cell-contact_phones');
-            if (cell) {
-                cell.innerHTML = '<div id="phones-list"></div>';
-                renderPhones(phones); // Рекурсивно вызываем после восстановления
-            }
-            return;
-        }
-
         if (!phones || phones.length === 0) {
-            container.innerHTML = '<span style="color: #999;">Список пуст</span>';
+            container.innerHTML = '<span style="color:#999;">—</span>';
             return;
         }
-        container.innerHTML = phones.map(p => `
-            <div class="phone-tag" style="display: inline-block; background: #eee; padding: 4px 10px; border-radius: 6px; margin: 2px; font-size: 14px;">
-                ${p}
-            </div>
-        `).join('');
+        container.innerHTML = phones.map(p => `<span class="phone-tag">${p}</span>`).join('');
     }
 
-    // --- РЕДАКТИРОВАНИЕ ТЕКСТА ---
+    // Редактирование Текста
     function toggleEdit(field) {
-        const cell = document.getElementById(`cell-${field}`);
-        const btn = cell.closest('tr').querySelector('.edit-btn, .save-btn');
+        const row = document.getElementById(`row-${field}`);
+        const cell = row.querySelector('.cell-content');
+        const actions = row.querySelector('.cell-actions');
 
-        if (btn.textContent === 'Изменить') {
-            const currentVal = (cell.textContent === '—') ? '' : cell.textContent;
-            cell.innerHTML = `<input type="text" class="table-input" id="input-${field}" value="${currentVal}">`;
-            btn.textContent = 'Сохранить';
-            btn.className = 'save-btn';
-            btn.onclick = () => saveFooterUpdate(field, btn);
-        }
+        // Сохраняем состояние для отмены
+        row.setAttribute('data-editing', 'true');
+        row.setAttribute('data-prev-html', cell.innerHTML);
+
+        const currentVal = (cell.textContent === '—') ? '' : cell.textContent;
+        cell.innerHTML = `<input type="text" class="table-input" id="input-${field}" value="${currentVal}">`;
+
+        actions.innerHTML = `
+            <div class="actions-flex" style="display:flex; gap:5px; justify-content:flex-end;">
+                <button class="save-btn" onclick="saveUpdate('${field}')">Сохранить</button>
+                <button class="cancel-btn" onclick="cancelEdit('${field}')">Отмена</button>
+            </div>
+        `;
     }
 
-    async function saveFooterUpdate(field, btn) {
+    function cancelEdit(field) {
+        const row = document.getElementById(`row-${field}`);
+        const cell = row.querySelector('.cell-content');
+        const actions = row.querySelector('.cell-actions');
+
+        cell.innerHTML = row.getAttribute('data-prev-html');
+        row.removeAttribute('data-editing');
+
+        const isPhones = field === 'contact_phones';
+        actions.innerHTML = `<button class="edit-btn" onclick="${isPhones ? 'toggleEditPhones()' : `toggleEdit('${field}')` }">${isPhones ? 'Управлять' : 'Изменить'}</button>`;
+    }
+
+    async function saveUpdate(field) {
         const input = document.getElementById(`input-${field}`);
-        if (!input) return;
+        const row = document.getElementById(`row-${field}`);
+        const btn = row.querySelector('.save-btn');
 
-        const newVal = input.value;
-        const cell = document.getElementById(`cell-${field}`);
-
-        btn.disabled = true;
-        btn.textContent = '...';
+        btn.disabled = true; btn.textContent = '...';
 
         try {
             const res = await authorizedFetch(API_FOOTER, {
                 method: 'PATCH',
-                body: JSON.stringify({ [field]: newVal })
+                body: JSON.stringify({ [field]: input.value })
             });
-
-            if (res && res.ok) {
-                // Важно: убираем инпут вручную, чтобы loadFooterData увидел, что редактирование окончено
-                cell.innerHTML = '...';
+            if (res.ok) {
+                row.removeAttribute('data-editing');
                 await loadFooterData();
-                resetBtn(btn, field);
+                restoreActionButton(field);
             }
-        } catch (e) {
-            alert("Ошибка сохранения");
-            btn.disabled = false;
-            btn.textContent = 'Ошибка';
-        }
+        } catch (e) { alert("Ошибка"); btn.disabled = false; btn.textContent = 'Ошибка'; }
     }
 
-    // --- УПРАВЛЕНИЕ ТЕЛЕФОНАМИ ---
+    // Редактирование Телефонов
     function toggleEditPhones() {
-        const cell = document.getElementById('cell-contact_phones');
-        const btn = cell.closest('tr').querySelector('.edit-btn, .save-btn');
+        const field = 'contact_phones';
+        const row = document.getElementById(`row-${field}`);
+        const cell = row.querySelector('.cell-content');
+        const actions = row.querySelector('.cell-actions');
 
-        const currentPhones = Array.from(cell.querySelectorAll('.phone-tag')).map(d => d.textContent.trim());
+        row.setAttribute('data-editing', 'true');
+        row.setAttribute('data-prev-html', cell.innerHTML);
+
+        const currentPhones = Array.from(cell.querySelectorAll('.phone-tag')).map(t => t.textContent);
 
         let html = '<div id="phones-edit-container">';
-        currentPhones.forEach(p => {
-            html += createPhoneInputRow(p);
-        });
-        html += `</div><button class="edit-btn" style="margin-top: 10px; width: 100%;" onclick="addPhoneInput()">+ Добавить номер</button>`;
+        currentPhones.forEach(p => html += createPhoneRow(p));
+        html += '</div>';
+        html += `<button class="edit-btn" style="width:100%; margin-top:10px; font-size:12px;" onclick="addPhoneRow()">+ Добавить номер</button>`;
 
         cell.innerHTML = html;
-        btn.textContent = 'Сохранить всё';
-        btn.className = 'save-btn';
-        btn.onclick = () => savePhones(btn);
+        actions.innerHTML = `
+            <div class="actions-flex" style="display:flex; gap:5px; justify-content:flex-end;">
+                <button class="save-btn" onclick="savePhones()">Сохранить</button>
+                <button class="cancel-btn" onclick="cancelEdit('${field}')">Отмена</button>
+            </div>
+        `;
     }
 
-    function createPhoneInputRow(value = '') {
+    function createPhoneRow(val = '') {
         return `
-            <div style="display: flex; gap: 10px; margin-bottom: 8px;">
-                <input type="text"
-                       class="table-input phone-item"
-                       value="${value}"
-                       oninput="this.value = this.value.replace(/[^0-9+]/g, '')">
-                <button class="edit-btn" style="color: #ff4444; border-color: #ff4444;" onclick="this.parentElement.remove()">✕</button>
+            <div style="display:flex; gap:10px; margin-bottom:8px;">
+                <input type="text" class="table-input phone-item" value="${val}" placeholder="+7..." oninput="this.value=this.value.replace(/[^0-9+]/g,'')">
+                <button class="edit-btn" style="color:#ff4444; border-color:#ff4444;" onclick="this.parentElement.remove()">✕</button>
             </div>`;
     }
 
-    function addPhoneInput() {
+    function addPhoneRow() {
         const container = document.getElementById('phones-edit-container');
-        if (!container) return;
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = createPhoneInputRow();
-        container.appendChild(tempDiv.firstElementChild);
+        const div = document.createElement('div');
+        div.innerHTML = createPhoneRow();
+        container.appendChild(div.firstElementChild);
     }
 
-    async function savePhones(btn) {
-        const phoneInputs = document.querySelectorAll('.phone-item');
-        const phonesArray = Array.from(phoneInputs)
-            .map(i => i.value.trim())
-            .filter(v => v !== '');
+    async function savePhones() {
+        const field = 'contact_phones';
+        const row = document.getElementById(`row-${field}`);
+        const btn = row.querySelector('.save-btn');
+        const phones = Array.from(document.querySelectorAll('.phone-item')).map(i => i.value.trim()).filter(v => v);
 
-        const cell = document.getElementById('cell-contact_phones');
         btn.disabled = true;
-        btn.textContent = '...';
 
         try {
             const res = await authorizedFetch(API_FOOTER, {
                 method: 'PATCH',
-                body: JSON.stringify({ contact_phones: phonesArray })
+                body: JSON.stringify({ contact_phones: phones })
             });
-            if (res && res.ok) {
-                // Очищаем контейнер редактирования, чтобы вернуть обычный список
-                cell.innerHTML = '<div id="phones-list">...</div>';
+            if (res.ok) {
+                row.removeAttribute('data-editing');
                 await loadFooterData();
-
-                btn.textContent = 'Управлять';
-                btn.className = 'edit-btn';
-                btn.disabled = false;
-                btn.onclick = () => toggleEditPhones();
+                restoreActionButton(field);
             }
-        } catch (e) {
-            btn.disabled = false;
-            btn.textContent = 'Ошибка';
-        }
+        } catch (e) { btn.disabled = false; }
     }
 
-    function resetBtn(btn, field) {
-        btn.textContent = 'Изменить';
-        btn.className = 'edit-btn';
-        btn.disabled = false;
-        btn.onclick = () => toggleEdit(field);
+    function restoreActionButton(field) {
+        const row = document.getElementById(`row-${field}`);
+        const actions = row.querySelector('.cell-actions');
+        const isPhones = field === 'contact_phones';
+        actions.innerHTML = `<button class="edit-btn" onclick="${isPhones ? 'toggleEditPhones()' : `toggleEdit('${field}')` }">${isPhones ? 'Управлять' : 'Изменить'}</button>`;
     }
+
+    function handleLogout() { localStorage.clear(); window.location.href = 'index.html'; }
 
     document.addEventListener('DOMContentLoaded', loadFooterData);
 </script>

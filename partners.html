@@ -120,7 +120,7 @@
     }
     .burger span { width: 24px; height: 2px; background: #000; border-radius: 2px; }
 
-    /* --- ТАБЛИЦА (FIXED LAYOUT) --- */
+    /* --- ТАБЛИЦА --- */
     .table-container {
         background: #fff;
         border-radius: 15px;
@@ -131,7 +131,7 @@
     table {
         width: 100%;
         border-collapse: collapse;
-        table-layout: fixed; /* Фиксирует ширину колонок */
+        table-layout: fixed;
     }
 
     th {
@@ -148,29 +148,32 @@
         padding: 20px 25px;
         border-bottom: 1px solid #eee;
         font-size: 15px;
-        word-wrap: break-word; /* Перенос длинного текста */
     }
 
-    /* Пропорции колонок */
+    /* Пропорции */
     th:nth-child(1), td:nth-child(1) { width: 25%; }
-    th:nth-child(2), td:nth-child(2) { width: 60%; }
-    th:nth-child(3), td:nth-child(3) { width: 15%; text-align: right; }
+    th:nth-child(2), td:nth-child(2) { width: 50%; }
+    th:nth-child(3), td:nth-child(3) { width: 25%; text-align: right; min-width: 180px; }
 
     /* --- КНОПКИ И ИНПУТЫ --- */
-    .edit-btn, .save-btn {
-        padding: 10px 20px;
+    .edit-btn, .save-btn, .cancel-btn {
+        padding: 10px 18px;
         border-radius: 8px;
         font-size: 13px;
         font-weight: 600;
         cursor: pointer;
         transition: 0.2s;
         white-space: nowrap;
+        border: 1px solid #eee;
     }
 
-    .edit-btn { background: #fff; border: 1px solid #eee; color: #333; }
+    .edit-btn { background: #fff; color: #333; }
     .edit-btn:hover { background: #f9f9f9; }
 
-    .save-btn { background: #000; border: 1px solid #000; color: #fff; }
+    .save-btn { background: #000; border-color: #000; color: #fff; }
+    .save-btn:hover { background: #333; }
+
+    .cancel-btn { background: #eee; border-color: #eee; color: #666; margin-left: 5px; }
 
     .table-input {
         width: 100%;
@@ -181,11 +184,24 @@
         outline: none;
         background: #fcfcfc;
         display: block;
-        box-sizing: border-box;
     }
-    .table-input:focus { border-color: #000; background: #fff; }
 
-    /* --- АДАПТИВНОСТЬ (ПЛАНШЕТЫ И МОБИЛКИ) --- */
+    /* --- МОДАЛЬНОЕ ОКНО --- */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        background: #fff;
+        padding: 30px;
+        border-radius: 15px;
+        z-index: 4001;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+
+    /* --- АДАПТИВНОСТЬ --- */
     @media (max-width: 992px) {
         .sidebar { transform: translateX(-100%); }
         .sidebar.active { transform: translateX(0); box-shadow: 15px 0 30px rgba(0,0,0,0.1); }
@@ -193,23 +209,12 @@
         .mobile-header { display: flex; }
     }
 
-    /* Адаптивная таблица в карточки */
     @media (max-width: 600px) {
         table { table-layout: auto; }
         thead { display: none; }
-
         table, tbody, tr, td { display: block; width: 100% !important; }
-
         tr { padding: 20px; border-bottom: 2px solid #f0f0f0; }
-
-        td {
-            padding: 10px 0;
-            border: none;
-            display: flex;
-            flex-direction: column;
-            text-align: left !important;
-        }
-
+        td { padding: 10px 0; border: none; text-align: left !important; }
         td::before {
             content: attr(data-label);
             font-size: 11px;
@@ -217,20 +222,16 @@
             text-transform: uppercase;
             margin-bottom: 5px;
             font-weight: 600;
+            display: block;
         }
-
-        td:last-child {
-            align-items: flex-start;
-            margin-top: 10px;
-        }
-
-        .edit-btn, .save-btn { width: 100%; }
+        .edit-btn, .save-btn, .cancel-btn { width: 100%; margin: 5px 0; }
     }
     </style>
 </head>
 <body>
 
     <div class="sidebar-overlay" id="overlay"></div>
+    <div class="sidebar-overlay" id="modalOverlay" style="z-index: 4000;"></div>
 
     <div class="mobile-header">
         <span style="font-weight: 600; font-size: 16px;">KUAT ADMIN</span>
@@ -240,8 +241,9 @@
     </div>
 
     <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">МЕНЮ УПРАВЛЕНИЯ</div>
+        <div class="sidebar-header">KUAT SOLUTIONS</div>
         <ul class="sidebar-menu">
+            <li><a href="main_page.html">Панель управления</a></li>
             <li><a href="main.html">Главная страница</a></li>
             <li><a href="category.html">Категории продуктов</a></li>
             <li><a href="products.html">Продукты</a></li>
@@ -250,309 +252,271 @@
             <li><a href="partners.html" class="active-link">Партнеры</a></li>
             <li><a href="change_password.html">Смена пароля</a></li>
         </ul>
-
         <button class="logout-btn" onclick="handleLogout()">Выйти из системы</button>
     </aside>
 
-   <main class="main-content">
-    <h1>Управление партнерами</h1>
+    <main class="main-content">
+        <h1>Управление партнерами</h1>
 
-    <div class="table-container" style="margin-bottom: 40px;">
-        <table>
-            <thead>
-                <tr>
-                    <th>Поле</th>
-                    <th>Значение</th>
-                    <th style="text-align: right;">Действие</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td data-label="Поле"><strong>Заголовок страницы</strong></td>
-                    <td data-label="Значение" id="cell-title">Загрузка...</td>
-                    <td style="text-align: right;">
-                        <button class="edit-btn" onclick="toggleEditHeader('title')">Изменить</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td data-label="Поле"><strong>Подзаголовок</strong></td>
-                    <td data-label="Значение" id="cell-subtitle">Загрузка...</td>
-                    <td style="text-align: right;">
-                        <button class="edit-btn" onclick="toggleEditHeader('subtitle')">Изменить</button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <div class="table-container" id="add-partner-form" style="display: none; margin-bottom: 20px; padding: 20px; border: 2px solid #000;">
-        <h3 style="margin-bottom: 15px;">Новый партнер</h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-            <input type="text" id="new-partner-name" class="table-input" placeholder="Название компании">
-            <input type="text" id="new-partner-url" class="table-input" placeholder="Ссылка на сайт (https://...)">
+        <div class="table-container" style="margin-bottom: 40px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Поле</th>
+                        <th>Значение</th>
+                        <th style="text-align: right;">Действие</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr id="row-title">
+                        <td data-label="Поле"><strong>Заголовок страницы</strong></td>
+                        <td data-label="Значение" class="cell-content">Загрузка...</td>
+                        <td style="text-align: right;" class="cell-actions">
+                            <button class="edit-btn" onclick="toggleEditHeader('title')">Изменить</button>
+                        </td>
+                    </tr>
+                    <tr id="row-subtitle">
+                        <td data-label="Поле"><strong>Подзаголовок</strong></td>
+                        <td data-label="Значение" class="cell-content">Загрузка...</td>
+                        <td style="text-align: right;" class="cell-actions">
+                            <button class="edit-btn" onclick="toggleEditHeader('subtitle')">Изменить</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-        <div style="margin-bottom: 15px;">
-            <label style="font-size: 12px; color: #666; display: block; margin-bottom: 5px;">Логотип компании:</label>
-            <input type="file" id="new-partner-logo" accept="image/*" class="table-input">
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2>Список компаний</h2>
+            <button class="save-btn" onclick="openAddModal()">+ Добавить партнера</button>
         </div>
-        <div style="display: flex; gap: 10px;">
-            <button class="save-btn" onclick="submitNewPartner()">Сохранить партнера</button>
-            <button class="edit-btn" onclick="closeAddPartnerForm()">Отмена</button>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 100px;">Лого</th>
+                        <th>Компания и ссылка</th>
+                        <th style="text-align: right;">Действие</th>
+                    </tr>
+                </thead>
+                <tbody id="partners-list">
+                    <tr><td colspan="3" style="text-align:center; padding:30px; color:#999;">Загрузка...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <div id="addPartnerModal" class="modal">
+        <h2 style="margin-bottom: 20px; font-size: 18px;">Новый партнер</h2>
+        <div style="display: flex; flex-direction: column; gap: 15px;">
+            <div>
+                <label style="font-size: 12px; color: #999; font-weight: 600; text-transform: uppercase;">Название компании</label>
+                <input type="text" id="new-partner-name" class="table-input" placeholder="Например: Kaspi.kz">
+            </div>
+            <div>
+                <label style="font-size: 12px; color: #999; font-weight: 600; text-transform: uppercase;">Ссылка на сайт</label>
+                <input type="text" id="new-partner-url" class="table-input" placeholder="https://example.com">
+            </div>
+            <div>
+                <label style="font-size: 12px; color: #999; font-weight: 600; text-transform: uppercase;">Логотип</label>
+                <input type="file" id="new-partner-logo" accept="image/*" style="display: block; margin-top: 10px;">
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px;">
+                <button class="edit-btn" onclick="closeAddModal()">Отмена</button>
+                <button class="save-btn" id="btn-create" onclick="submitNewPartner()">Создать</button>
+            </div>
         </div>
     </div>
-
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2>Список компаний</h2>
-        <button class="save-btn" id="show-add-btn" onclick="openAddPartnerForm()">+ Добавить партнера</button>
-    </div>
-
-       <div class="table-card" style="background: #fff; border-radius: 12px; border: 1px solid #eee; overflow: hidden;">
-    <table style="width: 100%; border-collapse: collapse;">
-        <thead>
-            <tr style="background: #f8fafc; text-align: left; border-bottom: 1px solid #eee;">
-                <th style="padding: 15px; width: 100px;">Лого</th>
-                <th style="padding: 15px;">Компания и ссылка</th>
-                <th style="padding: 15px; text-align: right;">Действие</th>
-            </tr>
-        </thead>
-        <tbody id="partners-list">
-            <tr>
-                <td colspan="3" style="text-align:center; padding:30px; color:#999;">
-                    Загрузка списка партнеров...
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
-
-</main>
 
 <script>
+    const API_SECTION = 'https://kuat-admin.com/api/partners-section/';
     const API_PARTNERS = 'https://kuat-admin.com/api/partners/';
 
-    // --- ИНИЦИАЛИЗАЦИЯ МЕНЮ ---
+    // --- МЕНЮ ---
     const burgerBtn = document.getElementById('burgerBtn');
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('overlay');
-
-    function toggleMenu() {
-        sidebar.classList.toggle('active');
-        overlay.classList.toggle('active');
-    }
+    function toggleMenu() { sidebar.classList.toggle('active'); overlay.classList.toggle('active'); }
     burgerBtn?.addEventListener('click', toggleMenu);
     overlay?.addEventListener('click', toggleMenu);
 
-    // --- ЗАГРУЗКА ДАННЫХ ---
+    // --- ЗАГРУЗКА ---
     async function loadPartnersData() {
         try {
-            const res = await authorizedFetch(API_PARTNERS);
-            if (!res || !res.ok) throw new Error("Fetch error");
-            const data = await res.json();
+            const [resSection, resList] = await Promise.all([
+                authorizedFetch(API_SECTION),
+                authorizedFetch(API_PARTNERS)
+            ]);
+            if (!resSection.ok || !resList.ok) throw new Error();
 
-            // Проверка: редактируется ли поле сейчас
-            const isEditing = (id) => {
-                const cell = document.getElementById(id);
-                return cell && cell.querySelector('input');
-            };
+            const section = await resSection.json();
+            const list = await resList.json();
 
-            // Обновляем заголовок
-            if (!isEditing('cell-title')) {
-                document.getElementById('cell-title').textContent = data.title || '—';
+            // Обновляем заголовки если не в режиме редактирования
+            if (!document.getElementById('row-title').hasAttribute('data-editing')) {
+                document.querySelector('#row-title .cell-content').textContent = section.title || '—';
             }
-            // Обновляем подзаголовок
-            if (!isEditing('cell-subtitle')) {
-                document.getElementById('cell-subtitle').textContent = data.subtitle || '—';
+            if (!document.getElementById('row-subtitle').hasAttribute('data-editing')) {
+                document.querySelector('#row-subtitle .cell-content').textContent = section.subtitle || '—';
             }
 
-            // Рендер списка партнеров
-            renderPartnersList(data.partners);
-        } catch (e) {
-            console.error("Ошибка загрузки:", e);
-        }
+            renderPartnersList(list);
+        } catch (e) { console.error(e); }
     }
 
     function renderPartnersList(partners) {
-    const container = document.getElementById('partners-list');
-    if (!container) return;
-
-    if (!partners || partners.length === 0) {
-        container.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:30px; color:#999;">Партнеров пока нет</td></tr>';
-        return;
-    }
-
-    container.innerHTML = partners.map(p => {
-        // Проверяем, есть ли протокол, чтобы не дублировать домен
-        const logoUrl = p.logo.startsWith('http') ? p.logo : 'https://kuat-admin.com' + p.logo;
-
-        // ИСПОЛЬЗУЕМ p.url вместо p.website_url, так как это пришло в JSON
-        const website = p.url || '#';
-
-        return `
+        const container = document.getElementById('partners-list');
+        if (!partners.length) {
+            container.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:30px;">Партнеров нет</td></tr>';
+            return;
+        }
+        container.innerHTML = partners.map(p => `
             <tr>
-                <td>
-                    <img src="${logoUrl}"
-                         style="width: 60px; height: 60px; object-fit: contain; border: 1px solid #eee; border-radius: 8px;"
-                         onerror="this.src='https://via.placeholder.com/60?text=No+Logo'">
-                </td>
+                <td><img src="${p.logo.startsWith('http') ? p.logo : 'https://kuat-admin.com' + p.logo}"
+                    style="width: 60px; height: 60px; object-fit: contain; border: 1px solid #eee; border-radius: 8px;"></td>
                 <td>
                     <div style="font-weight: 600;">${p.name}</div>
-                    <a href="${website}" target="_blank" style="font-size: 13px; color: #0066cc; text-decoration: underline; word-break: break-all;">
-                        ${website}
-                    </a>
+                    <a href="${p.url || '#'}" target="_blank" style="font-size: 13px; color: #0066cc;">${p.url || ''}</a>
                 </td>
                 <td style="text-align: right;">
                     <button class="edit-btn" style="color: #ff4444; border-color: #ff4444;" onclick="deletePartner(${p.id})">Удалить</button>
                 </td>
             </tr>
-        `;
-    }).join('');
-}
+        `).join('');
+    }
 
     // --- РЕДАКТИРОВАНИЕ ЗАГОЛОВКОВ ---
     function toggleEditHeader(field) {
-        const cell = document.getElementById(`cell-${field}`);
-        const btn = cell.closest('tr').querySelector('button');
+        const row = document.getElementById(`row-${field}`);
+        const cell = row.querySelector('.cell-content');
+        const actions = row.querySelector('.cell-actions');
 
-        if (btn.textContent === 'Изменить') {
-            const currentVal = cell.textContent === '—' ? '' : cell.textContent;
-            cell.innerHTML = `<input type="text" class="table-input" id="input-${field}" value="${currentVal}">`;
-            btn.textContent = 'Сохранить';
-            btn.className = 'save-btn';
-            btn.onclick = () => saveHeader(field, btn);
-        }
+        row.setAttribute('data-editing', 'true');
+        row.setAttribute('data-prev-val', cell.textContent);
+
+        const currentVal = cell.textContent === '—' ? '' : cell.textContent;
+        cell.innerHTML = `<input type="text" class="table-input" id="input-${field}" value="${currentVal}">`;
+
+        actions.innerHTML = `
+            <div style="display:flex; gap:5px; justify-content:flex-end;">
+                <button class="save-btn" onclick="saveHeader('${field}')">Сохранить</button>
+                <button class="cancel-btn" onclick="cancelHeaderEdit('${field}')">Отмена</button>
+            </div>
+        `;
     }
 
-    async function saveHeader(field, btn) {
-        const input = document.getElementById(`input-${field}`);
-        if (!input) return;
+    // --- ИСПРАВЛЕННЫЕ ФУНКЦИИ РЕДАКТИРОВАНИЯ ---
 
-        const val = input.value;
-        const cell = document.getElementById(`cell-${field}`);
+    function cancelHeaderEdit(field) {
+        const row = document.getElementById(`row-${field}`);
+        const cell = row.querySelector('.cell-content');
+        const actions = row.querySelector('.cell-actions');
+
+        // Возвращаем старое значение из атрибута
+        cell.textContent = row.getAttribute('data-prev-val');
+
+        // Обязательно чистим флаг редактирования
+        row.removeAttribute('data-editing');
+
+        // Возвращаем кнопку "Изменить"
+        actions.innerHTML = `<button class="edit-btn" onclick="toggleEditHeader('${field}')">Изменить</button>`;
+    }
+
+    async function saveHeader(field) {
+        const row = document.getElementById(`row-${field}`);
+        const input = document.getElementById(`input-${field}`);
+        const actions = row.querySelector('.cell-actions');
+        const btn = actions.querySelector('.save-btn');
+
+        const newValue = input.value.trim();
+
+        if (!newValue) {
+            alert("Поле не может быть пустым");
+            return;
+        }
 
         btn.disabled = true;
         btn.textContent = '...';
 
         try {
-            const res = await authorizedFetch(API_PARTNERS, {
+            const res = await authorizedFetch(API_SECTION, {
                 method: 'PATCH',
-                body: JSON.stringify({ [field]: val })
+                body: JSON.stringify({ [field]: newValue })
             });
 
-            if (res && res.ok) {
-                cell.innerHTML = '...'; // Временно чистим, чтобы loadData сработал
+            if (res.ok) {
+                // 1. Сначала снимаем флаг редактирования
+                row.removeAttribute('data-editing');
+
+                // 2. Мгновенно обновляем текст в ячейке вручную, не дожидаясь фоновой загрузки
+                const cell = row.querySelector('.cell-content');
+                cell.textContent = newValue;
+
+                // 3. Возвращаем кнопку "Изменить"
+                actions.innerHTML = `<button class="edit-btn" onclick="toggleEditHeader('${field}')">Изменить</button>`;
+
+                // 4. На всякий случай обновляем данные с сервера (синхронизация)
                 await loadPartnersData();
-                btn.textContent = 'Изменить';
-                btn.className = 'edit-btn';
+            } else {
+                alert("Ошибка при сохранении на сервере");
                 btn.disabled = false;
-                btn.onclick = () => toggleEditHeader(field);
+                btn.textContent = 'ОК';
             }
         } catch (e) {
-            alert("Ошибка сохранения");
+            console.error(e);
+            alert("Ошибка сети");
             btn.disabled = false;
-            btn.textContent = 'Ошибка';
+            btn.textContent = 'ОК';
         }
     }
 
-    // --- УПРАВЛЕНИЕ ФОРМОЙ ДОБАВЛЕНИЯ ---
-    function openAddPartnerForm() {
-        document.getElementById('add-partner-form').style.display = 'block';
-        document.getElementById('show-add-btn').style.display = 'none';
+    // --- МОДАЛКА И ДОБАВЛЕНИЕ ---
+    function openAddModal() {
+        document.getElementById('addPartnerModal').style.display = 'block';
+        document.getElementById('modalOverlay').classList.add('active');
     }
 
-    function closeAddPartnerForm() {
-        document.getElementById('add-partner-form').style.display = 'none';
-        document.getElementById('show-add-btn').style.display = 'block';
-        // Чистим поля
+    function closeAddModal() {
+        document.getElementById('addPartnerModal').style.display = 'none';
+        document.getElementById('modalOverlay').classList.remove('active');
         document.getElementById('new-partner-name').value = '';
         document.getElementById('new-partner-url').value = '';
         document.getElementById('new-partner-logo').value = '';
     }
+    document.getElementById('modalOverlay').onclick = closeAddModal;
 
     async function submitNewPartner() {
-        const nameInput = document.getElementById('new-partner-name');
-        const urlInput = document.getElementById('new-partner-url');
-        const logoInput = document.getElementById('new-partner-logo');
+        const name = document.getElementById('new-partner-name').value.trim();
+        const url = document.getElementById('new-partner-url').value.trim();
+        const logo = document.getElementById('new-partner-logo').files[0];
+        const btn = document.getElementById('btn-create');
 
-        const name = nameInput.value.trim();
-        const url = urlInput.value.trim();
-        const logoFile = logoInput.files[0];
+        if (!name || !logo) return alert("Заполните имя и выберите логотип");
 
-        if (!name || !url || !logoFile) {
-            alert("Пожалуйста, заполните все поля и выберите логотип");
-            return;
-        }
-
-        // Создаем FormData (обязательно для передачи файлов)
         const formData = new FormData();
         formData.append('name', name);
-        formData.append('url', url); // В твоем JSON поле называется "url"
-        formData.append('logo', logoFile);
+        formData.append('url', url);
+        formData.append('logo', logo);
 
-        const btn = document.querySelector('#add-partner-form .save-btn');
-        btn.disabled = true;
-        btn.textContent = 'Загрузка...';
-
+        btn.disabled = true; btn.textContent = '...';
         try {
-            // Мы отправляем POST на базовый URL.
-            // Сервер должен понять, что это создание нового элемента в коллекции partners.
-            const res = await authorizedFetch(API_PARTNERS, {
-                method: 'POST',
-                body: formData
-                // Важно: headers 'Content-Type' указывать НЕ НУЖНО,
-                // браузер сам поставит multipart/form-data с правильным boundary
-            });
-
-            if (res.ok) {
-                closeAddPartnerForm();
-                await loadPartnersData(); // Обновляем список, чтобы увидеть нового партнера
-            } else {
-                const errorData = await res.json();
-                console.error("Ошибка сервера:", errorData);
-                alert("Ошибка: " + JSON.stringify(errorData));
-            }
-        } catch (e) {
-            console.error("Ошибка запроса:", e);
-            alert("Произошла ошибка при отправке данных");
-        } finally {
-            btn.disabled = false;
-            btn.textContent = 'Сохранить партнера';
-        }
+            const res = await authorizedFetch(API_PARTNERS, { method: 'POST', body: formData });
+            if (res.ok) { closeAddModal(); await loadPartnersData(); }
+            else { alert("Ошибка сервера"); }
+        } catch (e) { alert("Ошибка сети"); }
+        finally { btn.disabled = false; btn.textContent = 'Создать'; }
     }
 
-    async function deletePartner(partnerId) {
-    if (!confirm("Удалить этого партнера?")) return;
-
-    // Стандартный путь DRF для удаления: /api/partners/ID/
-    const url = `${API_PARTNERS}${partnerId}/`;
-
-    try {
-        const res = await authorizedFetch(url, {
-            method: 'DELETE'
-        });
-
-        if (res.ok) {
-            // Если сервер вернул 204 No Content, всё успешно
-            await loadPartnersData();
-        } else {
-            // Если ошибка, пробуем прочитать JSON, если там HTML — выводим статус
-            const text = await res.text();
-            try {
-                const err = JSON.parse(text);
-                alert("Ошибка: " + JSON.stringify(err));
-            } catch(e) {
-                alert(`Ошибка сервера (${res.status}). Проверьте URL в urls.py`);
-            }
-        }
-    } catch (e) {
-        console.error("Ошибка сети:", e);
-    }
-}
-
-    function handleLogout() {
-        localStorage.clear();
-        window.location.href = 'index.html';
+    async function deletePartner(id) {
+        if (!confirm("Удалить партнера?")) return;
+        try {
+            const res = await authorizedFetch(`${API_PARTNERS}${id}/`, { method: 'DELETE' });
+            if (res.ok) await loadPartnersData();
+        } catch (e) { console.error(e); }
     }
 
+    function handleLogout() { localStorage.clear(); window.location.href = 'index.html'; }
     document.addEventListener('DOMContentLoaded', loadPartnersData);
 </script>
 </body>
