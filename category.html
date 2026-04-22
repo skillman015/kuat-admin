@@ -219,6 +219,63 @@
             .btn { width: 100%; }
             td div[style*="display: flex"] { flex-direction: column; width: 100%; }
         }
+
+        /* Базовый стиль (для десктопа) */
+    .header-flex {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        gap: 15px; /* Чтобы элементы не прилипали друг к другу при сужении */
+    }
+
+    /* --- АДАПТИВНОСТЬ --- */
+    @media (max-width: 600px) {
+        .header-flex {
+            flex-direction: column; /* Элементы в колонку */
+            align-items: flex-start; /* Выравнивание по левому краю */
+            gap: 15px;
+        }
+
+        .header-flex h1 {
+            font-size: 24px; /* Немного уменьшим заголовок для мобилок */
+            margin-bottom: 5px;
+        }
+
+        /* Растягиваем кнопку на всю ширину */
+        .header-flex .btn {
+            width: 100%;
+            padding: 15px; /* Сделаем кнопку удобнее для нажатия пальцем */
+            text-align: center;
+            justify-content: center;
+        }
+
+        /* Исправление таблиц из вашего кода */
+        tr {
+            border-bottom: 8px solid #f4f7f6;
+            display: block;
+            padding: 15px 0;
+            background: #fff;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        td {
+            display: block;
+            padding: 8px 20px;
+            text-align: left;
+        }
+
+        /* Фото категории в мобилке лучше делать по центру или фиксированного размера */
+        .cat-img {
+            width: 100px; /* На ваше усмотрение: 100% или фиксированно */
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin: 0 auto; /* Центрируем, если нужно */
+            display: block;
+        }
+    }
     </style>
 </head>
 <body>
@@ -248,7 +305,7 @@
     </aside>
 
     <main class="main-content">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+        <div class="header-flex">
             <h1>Категории продуктов</h1>
             <button class="btn btn-save" onclick="openAddModal()">+ Добавить категорию</button>
         </div>

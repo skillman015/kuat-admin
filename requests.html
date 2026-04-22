@@ -203,15 +203,6 @@
     .page-btn:hover { border-color: #cbd5e0; background: #f7fafc; }
     .page-btn.active { background: #000; color: #fff; border-color: #000; }
 
-    /* Шапка с кнопками */
-    .header-actions {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 25px;
-        gap: 15px;
-    }
-
     .btn-group { display: flex; gap: 10px; }
 
     .btn-action {
@@ -274,28 +265,152 @@
     }
 
     @media (max-width: 768px) {
-        th { display: none; }
-        td {
+        th { display: none; } /* Скрываем шапку таблицы */
+
+        tr {
+            border-bottom: 8px solid #f4f7f6;
             display: block;
-            padding: 12px 24px;
+            padding: 10px 0;
+            background: #fff;
+            margin-bottom: 10px;
+            border-radius: 12px;
+        }
+
+        td {
+            display: flex; /* Используем Flexbox */
+            justify-content: space-between; /* Заголовок слева, контент справа */
+            align-items: flex-start; /* Выравнивание по верхнему краю */
+            padding: 12px 20px;
             border: none;
             text-align: right;
-            position: relative;
+            gap: 15px; /* Отступ между заголовком и данными */
         }
+
+        /* Настройка заголовков (data-label) */
         td::before {
             content: attr(data-label);
-            position: absolute;
-            left: 24px;
-            font-weight: 600;
+            font-weight: 700;
             color: #a0aec0;
             text-transform: uppercase;
             font-size: 10px;
-            top: 14px;
+            min-width: 100px; /* Фиксированная ширина для заголовков */
+            text-align: left;
+            flex-shrink: 0; /* Чтобы заголовок не сжимался */
+            margin-top: 3px;
         }
-        tr { border-bottom: 8px solid #f4f7f6; display: block; padding: 10px 0; }
-        .table-footer { flex-direction: column; gap: 15px; text-align: center; }
-        .msg-text { max-width: 100%; text-align: right; }
+
+        /* Исправление для длинных текстов (сообщения) */
+        .msg-text {
+            max-width: 100%;
+            text-align: right;
+            word-break: break-word; /* Перенос длинных слов */
+        }
+
+        .client-name, .contact-link {
+            display: block;
+            word-break: break-all; /* Чтобы email не вылезал за границы */
+        }
+
+        /* Центрируем статус на мобилках */
+        td[data-label="Статус"] {
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-footer {
+            flex-direction: column;
+            gap: 15px;
+            text-align: center;
+            padding: 20px;
+        }
     }
+
+    /* Дополнительно: исправление кнопок для самых маленьких экранов */
+    @media (max-width: 600px) {
+        .header-actions {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 15px;
+        }
+
+        .btn-group {
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .btn-action {
+            width: 100%;
+            justify-content: center;
+            padding: 14px;
+        }
+
+        .header-actions h1 {
+            font-size: 22px;
+            text-align: center;
+        }
+    }
+
+        /* Базовый стиль для десктопа */
+.header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    gap: 15px;
+}
+
+.btn-group {
+    display: flex;
+    gap: 10px;
+}
+
+/* --- АДАПТИВНОСТЬ --- */
+@media (max-width: 600px) {
+    /* Контейнер заголовка и кнопок */
+    .header-actions {
+        flex-direction: column; /* Заголовок сверху, кнопки снизу */
+        align-items: flex-start; /* Выравнивание по левому краю */
+        gap: 15px;
+    }
+
+    /* Группа кнопок */
+    .btn-group {
+        flex-direction: column; /* Кнопки встают друг под другом */
+        width: 100%; /* Растягиваем контейнер на всю ширину */
+        gap: 10px;
+    }
+
+    /* Сами кнопки */
+    .btn-action {
+        width: 100%; /* Кнопки на всю ширину экрана */
+        padding: 15px; /* Удобный размер для нажатия пальцем */
+        text-align: center;
+        justify-content: center;
+        display: flex;
+        align-items: center;
+    }
+
+    .header-actions h1 {
+        font-size: 24px;
+        margin-bottom: 5px;
+    }
+
+    /* Остальные стили для таблиц (как в вашем примере) */
+    tr {
+        border-bottom: 8px solid #f4f7f6;
+        display: block;
+        padding: 15px 0;
+        background: #fff;
+        border-radius: 8px;
+        margin-bottom: 15px;
+    }
+
+    td {
+        display: block;
+        padding: 8px 20px;
+        text-align: left;
+    }
+}
     </style>
 </head>
 <body>

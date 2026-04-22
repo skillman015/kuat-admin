@@ -226,6 +226,108 @@
         }
         .edit-btn, .save-btn, .cancel-btn { width: 100%; margin: 5px 0; }
     }
+
+        /* Базовый стиль (для десктопа) */
+.header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    gap: 15px; /* Чтобы элементы не прилипали друг к другу при сужении */
+}
+
+/* --- АДАПТИВНОСТЬ --- */
+@media (max-width: 600px) {
+    .header-flex {
+        flex-direction: column; /* Элементы в колонку */
+        align-items: flex-start; /* Выравнивание по левому краю */
+        gap: 15px;
+    }
+
+    .header-flex h1 {
+        font-size: 24px; /* Немного уменьшим заголовок для мобилок */
+        margin-bottom: 5px;
+    }
+
+    /* Растягиваем кнопку на всю ширину */
+    .header-flex .btn {
+        width: 100%;
+        padding: 15px; /* Сделаем кнопку удобнее для нажатия пальцем */
+        text-align: center;
+        justify-content: center;
+    }
+
+    /* Исправление таблиц из вашего кода */
+    tr {
+        border-bottom: 8px solid #f4f7f6;
+        display: block;
+        padding: 15px 0;
+        background: #fff;
+        border-radius: 8px;
+        margin-bottom: 15px;
+    }
+
+    td {
+        display: block;
+        padding: 8px 20px;
+        text-align: left;
+    }
+
+    /* Фото категории в мобилке лучше делать по центру или фиксированного размера */
+    .cat-img {
+        width: 100px; /* На ваше усмотрение: 100% или фиксированно */
+        height: 100px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin: 0 auto; /* Центрируем, если нужно */
+        display: block;
+    }
+}
+
+        @media (max-width: 600px) {
+    /* Делаем строки таблицы карточками */
+    #partners-list tr {
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* Центрируем всё содержимое строки */
+        padding: 20px;
+        border-bottom: 8px solid #f4f7f6;
+        background: #fff;
+    }
+
+    #partners-list td {
+        display: block;
+        width: 100%;
+        text-align: center !important; /* Центрируем текст */
+        padding: 10px 0;
+        border: none;
+    }
+
+    /* Увеличиваем логотип и центрируем его */
+    #partners-list td img {
+        width: 120px !important; /* Увеличиваем размер (было 60px) */
+        height: 120px !important;
+        margin: 0 auto;
+        display: block;
+        object-fit: contain;
+    }
+
+    /* Скрываем заголовки таблицы на мобилках, если они мешают */
+    .table-container thead {
+        display: none;
+    }
+
+    /* Растягиваем кнопку удаления на всю ширину для удобства */
+    .edit-btn {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    /* Убираем лишние отступы у ячеек с действиями */
+    #partners-list td:last-child {
+        text-align: center !important;
+    }
+}
     </style>
 </head>
 <body>
@@ -286,7 +388,7 @@
             </table>
         </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div class="header-flex">
             <h2>Список компаний</h2>
             <button class="save-btn" onclick="openAddModal()">+ Добавить партнера</button>
         </div>

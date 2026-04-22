@@ -369,6 +369,10 @@
 
     function renderPhones(phones) {
         const container = document.getElementById('phones-list');
+
+        // Если мы сейчас в режиме редактирования, phones-list может отсутствовать
+        if (!container) return;
+
         if (!phones || phones.length === 0) {
             container.innerHTML = '<span style="color:#999;">—</span>';
             return;
@@ -473,22 +477,47 @@
     async function savePhones() {
         const field = 'contact_phones';
         const row = document.getElementById(`row-${field}`);
+        const cell = row.querySelector('.cell-content');
+        const actions = row.querySelector('.cell-actions');
         const btn = row.querySelector('.save-btn');
-        const phones = Array.from(document.querySelectorAll('.phone-item')).map(i => i.value.trim()).filter(v => v);
+
+        // Собираем номера из инпутов
+        const phones = Array.from(document.querySelectorAll('.phone-item'))
+            .map(i => i.value.trim())
+            .filter(v => v !== ""); // Убираем пустые строки
 
         btn.disabled = true;
+        btn.textContent = '...';
 
         try {
             const res = await authorizedFetch(API_FOOTER, {
                 method: 'PATCH',
                 body: JSON.stringify({ contact_phones: phones })
             });
+
             if (res.ok) {
+                // --- ЗАКРЫВАЕМ РЕЖИМ РЕДАКТИРОВАНИЯ ---
                 row.removeAttribute('data-editing');
-                await loadFooterData();
+
+                // Восстанавливаем структуру ячейки, чтобы там снова появился <div id="phones-list">
+                cell.innerHTML = '<div id="phones-list"></div>';
+
+                // Возвращаем кнопку "Управлять" вместо "Сохранить/Отмена"
                 restoreActionButton(field);
+
+                // Теперь, когда phones-list снова в DOM, загружаем свежие данные
+                await loadFooterData();
+            } else {
+                alert("Ошибка при сохранении");
+                btn.disabled = false;
+                btn.textContent = 'Сохранить';
             }
-        } catch (e) { btn.disabled = false; }
+        } catch (e) {
+            console.error(e);
+            alert("Ошибка сети");
+            btn.disabled = false;
+            btn.textContent = 'Сохранить';
+        }
     }
 
     function restoreActionButton(field) {
