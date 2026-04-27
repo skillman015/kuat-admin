@@ -7,7 +7,7 @@
     <script src="static/js/auth.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-    /* --- БАЗОВЫЕ СТИЛИ --- */
+    /* --- 1. БАЗОВЫЕ СТИЛИ --- */
     * {
         box-sizing: border-box;
         margin: 0;
@@ -24,9 +24,13 @@
         overflow-x: hidden;
     }
 
-    h1 { font-size: 24px; margin-bottom: 25px; font-weight: 600; }
+    h1 {
+        font-size: 24px;
+        margin-bottom: 25px;
+        font-weight: 600;
+    }
 
-    /* --- САЙДБАР --- */
+    /* --- 2. САЙДБАР И НАВИГАЦИЯ --- */
     .sidebar {
         width: 280px;
         background-color: #fff;
@@ -36,7 +40,8 @@
         padding: 30px 20px;
         position: fixed;
         height: 100vh;
-        left: 0; top: 0;
+        left: 0;
+        top: 0;
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         z-index: 3000;
     }
@@ -44,8 +49,10 @@
     .sidebar-overlay {
         display: none;
         position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
         background: rgba(0,0,0,0.4);
         z-index: 2500;
     }
@@ -89,7 +96,7 @@
         margin-top: 20px;
     }
 
-    /* --- ОСНОВНОЙ КОНТЕНТ --- */
+    /* --- 3. ОСНОВНОЙ КОНТЕНТ --- */
     .main-content {
         flex-grow: 1;
         margin-left: 280px;
@@ -101,7 +108,8 @@
     .mobile-header {
         display: none;
         position: fixed;
-        top: 0; left: 0;
+        top: 0;
+        left: 0;
         width: 100%;
         background: #fff;
         padding: 15px 20px;
@@ -113,14 +121,18 @@
     }
 
     .burger {
-        width: 40px; height: 40px;
-        display: flex; flex-direction: column;
-        justify-content: center; align-items: center;
-        gap: 5px; cursor: pointer;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+        cursor: pointer;
     }
     .burger span { width: 24px; height: 2px; background: #000; border-radius: 2px; }
 
-    /* --- ТАБЛИЦА (FIXED LAYOUT) --- */
+    /* --- 4. ТАБЛИЦА --- */
     .table-container {
         background: #fff;
         border-radius: 15px;
@@ -131,7 +143,7 @@
     table {
         width: 100%;
         border-collapse: collapse;
-        table-layout: fixed; /* Фиксирует ширину колонок */
+        table-layout: fixed;
     }
 
     th {
@@ -148,16 +160,15 @@
         padding: 20px 25px;
         border-bottom: 1px solid #eee;
         font-size: 15px;
-        word-wrap: break-word; /* Перенос длинного текста */
+        word-wrap: break-word;
     }
 
-    /* Пропорции колонок */
-    /* Пропорции колонок: перераспределяем место */
-    th:nth-child(1), td:nth-child(1) { width: 25%; } /* Поле */
-    th:nth-child(2), td:nth-child(2) { width: 55%; } /* Значение */
-    th:nth-child(3), td:nth-child(3) { width: 20%; text-align: right; min-width: 160px; } /* Действие */
+    /* Пропорции колонок (Десктоп / Планшет) */
+    th:nth-child(1), td:nth-child(1) { width: 20%; }
+    th:nth-child(2), td:nth-child(2) { width: 50%; }
+    th:nth-child(3), td:nth-child(3) { width: 30%; text-align: right; min-width: 200px; }
 
-    /* --- КНОПКИ И ИНПУТЫ --- */
+    /* --- 5. КНОПКИ, ИНПУТЫ И КОНТЕЙНЕРЫ --- */
     .edit-btn, .save-btn {
         padding: 10px 20px;
         border-radius: 8px;
@@ -170,7 +181,6 @@
 
     .edit-btn { background: #fff; border: 1px solid #eee; color: #333; }
     .edit-btn:hover { background: #f9f9f9; }
-
     .save-btn { background: #000; border: 1px solid #000; color: #fff; }
 
     .table-input {
@@ -186,19 +196,41 @@
     }
     .table-input:focus { border-color: #000; background: #fff; }
 
-    /* --- АДАПТИВНОСТЬ (ПЛАНШЕТЫ И МОБИЛКИ) --- */
-    @media (max-width: 992px) {
+    .action-container {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        align-items: center;
+        flex-wrap: nowrap !important;
+        white-space: nowrap;
+    }
+
+    /* --- 6. АДАПТИВНОСТЬ --- */
+
+    /* Планшеты и малые экраны (скрываем сайдбар) */
+    @media (max-width: 1100px) {
         .sidebar { transform: translateX(-100%); }
         .sidebar.active { transform: translateX(0); box-shadow: 15px 0 30px rgba(0,0,0,0.1); }
         .main-content { margin-left: 0; padding: 100px 20px 40px; }
         .mobile-header { display: flex; }
     }
 
-    /* Адаптивная таблица в карточки */
+    /* Оптимизация таблицы для iPad / Планшетов */
+    @media (max-width: 1024px) {
+        th, td {
+            padding: 15px 12px;
+        }
+        .save-btn, .edit-btn {
+            padding: 8px 12px;
+            font-size: 12px;
+        }
+        th:nth-child(3), td:nth-child(3) { min-width: 180px; }
+    }
+
+    /* Мобильные устройства (таблица в карточки) */
     @media (max-width: 600px) {
         table { table-layout: auto; }
         thead { display: none; }
-
         table, tbody, tr, td { display: block; width: 100% !important; }
 
         tr { padding: 20px; border-bottom: 2px solid #f0f0f0; }
@@ -225,16 +257,19 @@
             margin-top: 10px;
         }
 
-        .edit-btn, .save-btn { width: 100%; }
-
         td:last-child div {
-            justify-content: flex-start !important; /* На мобилках кнопки слева */
+            justify-content: flex-start !important;
             width: 100%;
-            margin-top: 10px;
+        }
+
+        .action-container {
+            flex-wrap: wrap !important; /* На мобилках разрешаем перенос для удобства клика */
+            gap: 10px;
         }
 
         .save-btn, .edit-btn {
-            flex: 1; /* Кнопки делят ширину поровну на мобилках */
+            flex: 1;
+            width: 100%;
             text-align: center;
         }
     }
@@ -393,9 +428,9 @@
             cell.innerHTML = `<input type="text" class="table-input" id="input-${field}" value="${currentVal}">`;
         }
 
-        // Добавляем контейнер с flex-wrap и выравниванием
+        // Заменяем инлайновые стили на класс .action-container
         actionCell.innerHTML = `
-            <div style="display: flex; gap: 8px; justify-content: flex-end; flex-wrap: nowrap; align-items: center;">
+            <div class="action-container">
                 <button class="save-btn" onclick="saveUpdate('${field}', this)">Сохранить</button>
                 <button class="edit-btn" style="color: #666; background: #eee;" onclick="cancelEdit('${field}', this)">Отмена</button>
             </div>

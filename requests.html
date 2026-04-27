@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-    /* --- БАЗОВЫЕ СТИЛИ (ОСТАВЛЕНЫ БЕЗ ИЗМЕНЕНИЙ) --- */
+    /* --- 1. БАЗОВЫЕ СТИЛИ --- */
     * {
         box-sizing: border-box;
         margin: 0;
@@ -18,16 +18,28 @@
     }
 
     body {
-        background-color: #f4f7f6; /* Чуть мягче фон для контраста с таблицей */
+        background-color: #f4f7f6;
         color: #333;
         display: flex;
         min-height: 100vh;
         overflow-x: hidden;
     }
 
-    h1 { font-size: 24px; margin-bottom: 25px; font-weight: 600; }
+    h1 {
+        font-size: 24px;
+        margin-bottom: 25px;
+        font-weight: 600;
+    }
 
-    /* --- САЙДБАР (ВАШ СТИЛЬ) --- */
+    .header-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        gap: 15px;
+    }
+
+    /* --- 2. САЙДБАР И ХЕДЕР --- */
     .sidebar {
         width: 280px;
         background-color: #fff;
@@ -90,7 +102,6 @@
         margin-top: 20px;
     }
 
-    /* --- ОСНОВНОЙ КОНТЕНТ --- */
     .main-content {
         flex-grow: 1;
         margin-left: 280px;
@@ -121,7 +132,7 @@
     }
     .burger span { width: 24px; height: 2px; background: #000; border-radius: 2px; }
 
-    /* --- НОВЫЙ СТИЛЬ ТАБЛИЦЫ (CRM STYLE) --- */
+    /* --- 3. ТАБЛИЦА (CRM STYLE) --- */
     .table-card {
         background: #fff;
         border-radius: 12px;
@@ -156,7 +167,6 @@
 
     tr:hover td { background-color: #f9fafb; }
 
-    /* Статусы */
     .status-badge {
         padding: 6px 12px;
         border-radius: 6px;
@@ -168,41 +178,12 @@
     .status-new { background: #feebc8; color: #975a16; }
     .status-done { background: #c6f6d5; color: #22543d; }
 
-    /* Контент внутри ячеек */
     .client-name { font-weight: 600; color: #2d3748; display: block; }
     .client-company { font-size: 12px; color: #718096; }
     .contact-link { color: #3182ce; text-decoration: none; font-size: 13px; }
     .msg-text { color: #4a5568; line-height: 1.5; font-size: 13px; max-width: 300px; display: block; }
 
-    /* --- ФУТЕР ТАБЛИЦЫ --- */
-    .table-footer {
-        padding: 20px 24px;
-        background: #f8fafc;
-        border-top: 1px solid #e2e8f0;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .total-info { font-size: 13px; color: #64748b; }
-
-    .pagination-btns { display: flex; gap: 8px; }
-
-    .page-btn {
-        padding: 8px 14px;
-        border-radius: 6px;
-        border: 1px solid #e2e8f0;
-        background: #fff;
-        color: #4a5568;
-        font-size: 13px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: 0.2s;
-    }
-
-    .page-btn:hover { border-color: #cbd5e0; background: #f7fafc; }
-    .page-btn.active { background: #000; color: #fff; border-color: #000; }
-
+    /* --- 4. КНОПКИ И МОДАЛКА --- */
     .btn-group { display: flex; gap: 10px; }
 
     .btn-action {
@@ -223,7 +204,6 @@
     .btn-secondary { background: #fff; color: #4a5568; }
     .btn-secondary:hover { background: #f8fafc; }
 
-    /* Модальное окно */
     .modal {
         display: none;
         position: fixed;
@@ -240,7 +220,7 @@
         background: #fff;
         padding: 30px;
         border-radius: 12px;
-        width: 100%;
+        width: 90%;
         max-width: 500px;
     }
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
@@ -256,161 +236,86 @@
     }
     .form-input:focus { border-color: #000; }
 
-    /* --- АДАПТИВНОСТЬ (ВАША МЕХАНИКА + НОВЫЕ СТИЛИ) --- */
-    @media (max-width: 992px) {
+    /* --- 5. ФУТЕР И ПАГИНАЦИЯ --- */
+    .table-footer {
+        padding: 20px 24px;
+        background: #f8fafc;
+        border-top: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .total-info { font-size: 13px; color: #64748b; }
+    .pagination-btns { display: flex; gap: 8px; }
+    .page-btn {
+        padding: 8px 14px;
+        border-radius: 6px;
+        border: 1px solid #e2e8f0;
+        background: #fff;
+        color: #4a5568;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+    .page-btn:hover { border-color: #cbd5e0; background: #f7fafc; }
+    .page-btn.active { background: #000; color: #fff; border-color: #000; }
+
+    /* --- 6. АДАПТИВНОСТЬ --- */
+    @media (max-width: 1300px) {
         .sidebar { transform: translateX(-100%); }
         .sidebar.active { transform: translateX(0); box-shadow: 15px 0 30px rgba(0,0,0,0.1); }
         .main-content { margin-left: 0; padding: 100px 20px 40px; }
         .mobile-header { display: flex; }
     }
 
-    @media (max-width: 768px) {
-        th { display: none; } /* Скрываем шапку таблицы */
+    @media (max-width: 992px) {
+        /* Трансформация таблицы в карточки */
+        thead { display: none; }
+        .table-card { background: transparent; border: none; box-shadow: none; }
+        table, tbody, tr, td { display: block; width: 100%; }
 
         tr {
-            border-bottom: 8px solid #f4f7f6;
-            display: block;
-            padding: 10px 0;
             background: #fff;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             border-radius: 12px;
+            padding: 15px 0;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
 
         td {
-            display: flex; /* Используем Flexbox */
-            justify-content: space-between; /* Заголовок слева, контент справа */
-            align-items: flex-start; /* Выравнивание по верхнему краю */
-            padding: 12px 20px;
-            border: none;
+            padding: 10px 20px !important;
+            border: none !important;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             text-align: right;
-            gap: 15px; /* Отступ между заголовком и данными */
         }
 
-        /* Настройка заголовков (data-label) */
         td::before {
             content: attr(data-label);
             font-weight: 700;
             color: #a0aec0;
             text-transform: uppercase;
             font-size: 10px;
-            min-width: 100px; /* Фиксированная ширина для заголовков */
             text-align: left;
-            flex-shrink: 0; /* Чтобы заголовок не сжимался */
-            margin-top: 3px;
+            flex-shrink: 0;
         }
 
-        /* Исправление для длинных текстов (сообщения) */
-        .msg-text {
-            max-width: 100%;
-            text-align: right;
-            word-break: break-word; /* Перенос длинных слов */
-        }
-
-        .client-name, .contact-link {
-            display: block;
-            word-break: break-all; /* Чтобы email не вылезал за границы */
-        }
-
-        /* Центрируем статус на мобилках */
-        td[data-label="Статус"] {
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .table-footer {
-            flex-direction: column;
-            gap: 15px;
-            text-align: center;
-            padding: 20px;
-        }
+        .msg-text { max-width: 60%; text-align: right; }
+        .table-footer { flex-direction: column; gap: 15px; text-align: center; }
     }
 
-    /* Дополнительно: исправление кнопок для самых маленьких экранов */
     @media (max-width: 600px) {
-        .header-actions {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 15px;
-        }
-
-        .btn-group {
-            flex-direction: column;
-            width: 100%;
-        }
-
-        .btn-action {
-            width: 100%;
-            justify-content: center;
-            padding: 14px;
-        }
-
-        .header-actions h1 {
-            font-size: 22px;
-            text-align: center;
-        }
+        .header-actions { flex-direction: column; align-items: stretch; }
+        .btn-group { flex-direction: column; width: 100%; }
+        .btn-action { width: 100%; justify-content: center; padding: 14px; }
+        .header-actions h1 { font-size: 22px; text-align: center; }
+        .form-grid { grid-template-columns: 1fr; }
+        .full-width { grid-column: auto; }
     }
-
-        /* Базовый стиль для десктопа */
-.header-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 25px;
-    gap: 15px;
-}
-
-.btn-group {
-    display: flex;
-    gap: 10px;
-}
-
-/* --- АДАПТИВНОСТЬ --- */
-@media (max-width: 600px) {
-    /* Контейнер заголовка и кнопок */
-    .header-actions {
-        flex-direction: column; /* Заголовок сверху, кнопки снизу */
-        align-items: flex-start; /* Выравнивание по левому краю */
-        gap: 15px;
-    }
-
-    /* Группа кнопок */
-    .btn-group {
-        flex-direction: column; /* Кнопки встают друг под другом */
-        width: 100%; /* Растягиваем контейнер на всю ширину */
-        gap: 10px;
-    }
-
-    /* Сами кнопки */
-    .btn-action {
-        width: 100%; /* Кнопки на всю ширину экрана */
-        padding: 15px; /* Удобный размер для нажатия пальцем */
-        text-align: center;
-        justify-content: center;
-        display: flex;
-        align-items: center;
-    }
-
-    .header-actions h1 {
-        font-size: 24px;
-        margin-bottom: 5px;
-    }
-
-    /* Остальные стили для таблиц (как в вашем примере) */
-    tr {
-        border-bottom: 8px solid #f4f7f6;
-        display: block;
-        padding: 15px 0;
-        background: #fff;
-        border-radius: 8px;
-        margin-bottom: 15px;
-    }
-
-    td {
-        display: block;
-        padding: 8px 20px;
-        text-align: left;
-    }
-}
     </style>
 </head>
 <body>
@@ -498,206 +403,206 @@
 
     <script>
     // Константы
-const API_REQUESTS = 'https://kuat-admin.com/api/requests/';
-const ITEMS_PER_PAGE = 10;
+    const API_REQUESTS = 'https://kuat-admin.com/api/requests/';
+    const ITEMS_PER_PAGE = 10;
 
-// Глобальные переменные для данных
-let allRequestsData = [];
+    // Глобальные переменные для данных
+    let allRequestsData = [];
 
-// --- МЕНЮ ---
-const burgerBtn = document.getElementById('burgerBtn');
-const sidebar = document.getElementById('sidebar');
-const overlay = document.getElementById('overlay');
+    // --- МЕНЮ ---
+    const burgerBtn = document.getElementById('burgerBtn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
 
-function toggleMenu() {
-    sidebar.classList.toggle('active');
-    overlay.classList.toggle('active');
-}
-burgerBtn?.addEventListener('click', toggleMenu);
-overlay?.addEventListener('click', toggleMenu);
-
-// --- УПРАВЛЕНИЕ МОДАЛЬНЫМ ОКНОМ ---
-const modal = document.getElementById('modal');
-
-function openModal() {
-    modal.classList.add('active');
-}
-
-function closeModal() {
-    modal.classList.remove('active');
-    document.getElementById('requestForm').reset();
-}
-
-// Закрытие модалки при клике на серый фон
-modal.addEventListener('click', (e) => {
-    if (e.target === modal) closeModal();
-});
-
-// --- ЗАГРУЗКА ДАННЫХ ---
-async function loadRequests(page = 1) {
-    try {
-        const res = await authorizedFetch(API_REQUESTS);
-        if (!res || !res.ok) throw new Error("API error");
-        const data = await res.json();
-
-        // Сохраняем все данные для последующего экспорта в Excel
-        allRequestsData = Array.isArray(data) ? data : data.results;
-
-        const total = allRequestsData.length;
-        document.getElementById('total-count').textContent = total;
-
-        // Локальная пагинация
-        const start = (page - 1) * ITEMS_PER_PAGE;
-        const end = start + ITEMS_PER_PAGE;
-        const paginatedItems = allRequestsData.slice(start, end);
-
-        document.getElementById('current-count').textContent = paginatedItems.length;
-
-        renderTable(paginatedItems);
-        renderPagination(total, page);
-    } catch (e) {
-        console.error("Ошибка загрузки:", e);
-        document.getElementById('requests-body').innerHTML =
-            '<tr><td colspan="6" style="text-align:center; padding:50px; color:#a0aec0;">Ошибка загрузки данных</td></tr>';
+    function toggleMenu() {
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
     }
-}
+    burgerBtn?.addEventListener('click', toggleMenu);
+    overlay?.addEventListener('click', toggleMenu);
 
-// --- ОТРИСОВКА ТАБЛИЦЫ ---
-function renderTable(list) {
-    const tbody = document.getElementById('requests-body');
-    if (list.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:50px;">Заявок нет</td></tr>';
-        return;
+    // --- УПРАВЛЕНИЕ МОДАЛЬНЫМ ОКНОМ ---
+    const modal = document.getElementById('modal');
+
+    function openModal() {
+        modal.classList.add('active');
     }
 
-    tbody.innerHTML = list.map(req => {
-        const date = new Date(req.created_at).toLocaleDateString('ru-RU', {
-            day: '2-digit', month: '2-digit', year: '2-digit',
-            hour: '2-digit', minute: '2-digit'
-        });
-        const statusClass = req.is_processed ? 'status-done' : 'status-new';
-        const statusText = req.is_processed ? 'Обработано' : 'Новая';
-
-        return `
-            <tr>
-                <td data-label="ID" style="color: #cbd5e0; font-weight: 600;">#${req.id}</td>
-                <td data-label="Клиент">
-                    <span class="client-name">${req.first_name} ${req.last_name}</span>
-                    <span class="client-company">${req.company || 'Частное лицо'}</span>
-                </td>
-                <td data-label="Контакты">
-                    <a href="mailto:${req.email}" class="contact-link">${req.email}</a><br>
-                    <span style="font-size: 12px; color: #718096;">${req.phone}</span>
-                </td>
-                <td data-label="Сообщение">
-                    <span class="msg-text">${req.message || '—'}</span>
-                </td>
-                <td data-label="Дата" style="color: #718096; white-space: nowrap;">${date}</td>
-                <td data-label="Статус" style="text-align: center;">
-                    <span class="status-badge ${statusClass}">${statusText}</span>
-                </td>
-            </tr>
-        `;
-    }).join('');
-}
-
-// --- ПАГИНАЦИЯ ---
-function renderPagination(total, current) {
-    const nav = document.getElementById('pagination');
-    const pagesCount = Math.ceil(total / ITEMS_PER_PAGE);
-    nav.innerHTML = '';
-
-    if (pagesCount <= 1) return;
-
-    for (let i = 1; i <= pagesCount; i++) {
-        const btn = document.createElement('button');
-        btn.textContent = i;
-        btn.className = `page-btn ${i === current ? 'active' : ''}`;
-        btn.onclick = () => {
-            window.scrollTo({top: 0, behavior: 'smooth'});
-            loadRequests(i);
-        };
-        nav.appendChild(btn);
+    function closeModal() {
+        modal.classList.remove('active');
+        document.getElementById('requestForm').reset();
     }
-}
 
-// --- ДОБАВЛЕНИЕ ЗАЯВКИ (POST) ---
-document.getElementById('requestForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
+    // Закрытие модалки при клике на серый фон
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
 
-    const btnSubmit = e.target.querySelector('button[type="submit"]');
-    const originalBtnText = btnSubmit.textContent;
+    // --- ЗАГРУЗКА ДАННЫХ ---
+    async function loadRequests(page = 1) {
+        try {
+            const res = await authorizedFetch(API_REQUESTS);
+            if (!res || !res.ok) throw new Error("API error");
+            const data = await res.json();
 
-    // Блокируем кнопку
-    btnSubmit.disabled = true;
-    btnSubmit.textContent = 'Создание...';
+            // Сохраняем все данные для последующего экспорта в Excel
+            allRequestsData = Array.isArray(data) ? data : data.results;
 
-    const formData = new FormData(e.target);
-    const payload = Object.fromEntries(formData.entries());
+            const total = allRequestsData.length;
+            document.getElementById('total-count').textContent = total;
 
-    try {
-        const res = await authorizedFetch(API_REQUESTS, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        });
+            // Локальная пагинация
+            const start = (page - 1) * ITEMS_PER_PAGE;
+            const end = start + ITEMS_PER_PAGE;
+            const paginatedItems = allRequestsData.slice(start, end);
 
-        if (res && res.ok) {
-            closeModal();
-            loadRequests(1); // Перезагружаем первую страницу
-        } else {
-            const errData = await res.json();
-            alert('Ошибка при создании: ' + JSON.stringify(errData));
+            document.getElementById('current-count').textContent = paginatedItems.length;
+
+            renderTable(paginatedItems);
+            renderPagination(total, page);
+        } catch (e) {
+            console.error("Ошибка загрузки:", e);
+            document.getElementById('requests-body').innerHTML =
+                '<tr><td colspan="6" style="text-align:center; padding:50px; color:#a0aec0;">Ошибка загрузки данных</td></tr>';
         }
-    } catch (err) {
-        console.error(err);
-        alert('Ошибка сети или сервера');
-    } finally {
-        btnSubmit.disabled = false;
-        btnSubmit.textContent = originalBtnText;
-    }
-});
-
-// --- СКАЧИВАНИЕ В EXCEL ---
-function exportToExcel() {
-    if (allRequestsData.length === 0) {
-        alert("Нет данных для экспорта");
-        return;
     }
 
-    // Преобразуем данные в удобный для таблицы вид
-    const preparedData = allRequestsData.map(req => ({
-        "ID": req.id,
-        "Имя": req.first_name,
-        "Фамилия": req.last_name,
-        "Компания": req.company || "Частное лицо",
-        "Email": req.email,
-        "Телефон": req.phone,
-        "Адрес": req.address || "—",
-        "Сообщение": req.message || "—",
-        "Статус": req.is_processed ? "Обработано" : "Новая",
-        "Дата создания": new Date(req.created_at).toLocaleString('ru-RU')
-    }));
+    // --- ОТРИСОВКА ТАБЛИЦЫ ---
+    function renderTable(list) {
+        const tbody = document.getElementById('requests-body');
+        if (list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:50px;">Заявок нет</td></tr>';
+            return;
+        }
 
-    // Создаем рабочую книгу XLSX
-    const worksheet = XLSX.utils.json_to_sheet(preparedData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Заявки");
+        tbody.innerHTML = list.map(req => {
+            const date = new Date(req.created_at).toLocaleDateString('ru-RU', {
+                day: '2-digit', month: '2-digit', year: '2-digit',
+                hour: '2-digit', minute: '2-digit'
+            });
+            const statusClass = req.is_processed ? 'status-done' : 'status-new';
+            const statusText = req.is_processed ? 'Обработано' : 'Новая';
 
-    // Скачиваем файл
-    XLSX.writeFile(workbook, `Kuat_Requests_${new Date().toISOString().slice(0,10)}.xlsx`);
-}
+            return `
+                <tr>
+                    <td data-label="ID" style="color: #cbd5e0; font-weight: 600;">#${req.id}</td>
+                    <td data-label="Клиент">
+                        <span class="client-name">${req.first_name} ${req.last_name}</span>
+                        <span class="client-company">${req.company || 'Частное лицо'}</span>
+                    </td>
+                    <td data-label="Контакты">
+                        <a href="mailto:${req.email}" class="contact-link">${req.email}</a><br>
+                        <span style="font-size: 12px; color: #718096;">${req.phone}</span>
+                    </td>
+                    <td data-label="Сообщение">
+                        <span class="msg-text">${req.message || '—'}</span>
+                    </td>
+                    <td data-label="Дата" style="color: #718096; white-space: nowrap;">${date}</td>
+                    <td data-label="Статус" style="text-align: center;">
+                        <span class="status-badge ${statusClass}">${statusText}</span>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
 
-// --- ВЫХОД ---
-function handleLogout() {
-    localStorage.clear();
-    window.location.href = 'index.html';
-}
+    // --- ПАГИНАЦИЯ ---
+    function renderPagination(total, current) {
+        const nav = document.getElementById('pagination');
+        const pagesCount = Math.ceil(total / ITEMS_PER_PAGE);
+        nav.innerHTML = '';
 
-// Старт
-document.addEventListener('DOMContentLoaded', () => loadRequests(1));
+        if (pagesCount <= 1) return;
+
+        for (let i = 1; i <= pagesCount; i++) {
+            const btn = document.createElement('button');
+            btn.textContent = i;
+            btn.className = `page-btn ${i === current ? 'active' : ''}`;
+            btn.onclick = () => {
+                window.scrollTo({top: 0, behavior: 'smooth'});
+                loadRequests(i);
+            };
+            nav.appendChild(btn);
+        }
+    }
+
+    // --- ДОБАВЛЕНИЕ ЗАЯВКИ (POST) ---
+    document.getElementById('requestForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const btnSubmit = e.target.querySelector('button[type="submit"]');
+        const originalBtnText = btnSubmit.textContent;
+
+        // Блокируем кнопку
+        btnSubmit.disabled = true;
+        btnSubmit.textContent = 'Создание...';
+
+        const formData = new FormData(e.target);
+        const payload = Object.fromEntries(formData.entries());
+
+        try {
+            const res = await authorizedFetch(API_REQUESTS, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (res && res.ok) {
+                closeModal();
+                loadRequests(1); // Перезагружаем первую страницу
+            } else {
+                const errData = await res.json();
+                alert('Ошибка при создании: ' + JSON.stringify(errData));
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Ошибка сети или сервера');
+        } finally {
+            btnSubmit.disabled = false;
+            btnSubmit.textContent = originalBtnText;
+        }
+    });
+
+    // --- СКАЧИВАНИЕ В EXCEL ---
+    function exportToExcel() {
+        if (allRequestsData.length === 0) {
+            alert("Нет данных для экспорта");
+            return;
+        }
+
+        // Преобразуем данные в удобный для таблицы вид
+        const preparedData = allRequestsData.map(req => ({
+            "ID": req.id,
+            "Имя": req.first_name,
+            "Фамилия": req.last_name,
+            "Компания": req.company || "Частное лицо",
+            "Email": req.email,
+            "Телефон": req.phone,
+            "Адрес": req.address || "—",
+            "Сообщение": req.message || "—",
+            "Статус": req.is_processed ? "Обработано" : "Новая",
+            "Дата создания": new Date(req.created_at).toLocaleString('ru-RU')
+        }));
+
+        // Создаем рабочую книгу XLSX
+        const worksheet = XLSX.utils.json_to_sheet(preparedData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Заявки");
+
+        // Скачиваем файл
+        XLSX.writeFile(workbook, `Kuat_Requests_${new Date().toISOString().slice(0,10)}.xlsx`);
+    }
+
+    // --- ВЫХОД ---
+    function handleLogout() {
+        localStorage.clear();
+        window.location.href = 'index.html';
+    }
+
+    // Старт
+    document.addEventListener('DOMContentLoaded', () => loadRequests(1));
 </script>
 </body>
 </html>

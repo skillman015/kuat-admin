@@ -7,7 +7,7 @@
     <script src="static/js/auth.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-    /* --- БАЗОВЫЕ СТИЛИ --- */
+    /* --- 1. БАЗОВЫЕ СТИЛИ --- */
     * {
         box-sizing: border-box;
         margin: 0;
@@ -24,9 +24,13 @@
         overflow-x: hidden;
     }
 
-    h1 { font-size: 24px; margin-bottom: 25px; font-weight: 600; }
+    h1 {
+        font-size: 24px;
+        margin-bottom: 25px;
+        font-weight: 600;
+    }
 
-    /* --- САЙДБАР --- */
+    /* --- 2. САЙДБАР И МОБИЛЬНЫЙ ХЕДЕР --- */
     .sidebar {
         width: 280px;
         background-color: #fff;
@@ -89,7 +93,6 @@
         margin-top: 20px;
     }
 
-    /* --- ОСНОВНОЙ КОНТЕНТ --- */
     .main-content {
         flex-grow: 1;
         margin-left: 280px;
@@ -120,7 +123,7 @@
     }
     .burger span { width: 24px; height: 2px; background: #000; border-radius: 2px; }
 
-    /* --- ТАБЛИЦА --- */
+    /* --- 3. ТАБЛИЦА --- */
     .table-container {
         background: #fff;
         border-radius: 15px;
@@ -149,14 +152,15 @@
         border-bottom: 1px solid #eee;
         font-size: 15px;
         word-wrap: break-word;
+        vertical-align: middle;
     }
 
-    /* Пропорции */
-    th:nth-child(1), td:nth-child(1) { width: 25%; }
-    th:nth-child(2), td:nth-child(2) { width: 55%; }
-    th:nth-child(3), td:nth-child(3) { width: 20%; text-align: right; min-width: 180px; }
+    /* Пропорции колонок на десктопе */
+    th:nth-child(1), td:nth-child(1) { width: 20%; }
+    th:nth-child(2), td:nth-child(2) { width: 50%; }
+    th:nth-child(3), td:nth-child(3) { width: 30%; text-align: right; min-width: 200px; }
 
-    /* --- КНОПКИ И ИНПУТЫ --- */
+    /* --- 4. КНОПКИ, ИНПУТЫ И ЭЛЕМЕНТЫ --- */
     .edit-btn, .save-btn, .cancel-btn {
         padding: 10px 18px;
         border-radius: 8px;
@@ -165,16 +169,15 @@
         cursor: pointer;
         transition: 0.2s;
         white-space: nowrap;
-        border: none;
     }
 
     .edit-btn { background: #fff; border: 1px solid #eee; color: #333; }
     .edit-btn:hover { background: #f9f9f9; }
 
-    .save-btn { background: #000; color: #fff; }
+    .save-btn { background: #000; border: none; color: #fff; }
     .save-btn:hover { background: #333; }
 
-    .cancel-btn { background: #eee; color: #666; margin-left: 5px; }
+    .cancel-btn { background: #eee; border: none; color: #666; margin-left: 5px; }
 
     .table-input {
         width: 100%;
@@ -184,7 +187,6 @@
         font-size: 15px;
         outline: none;
         background: #fcfcfc;
-        display: block;
     }
     .table-input:focus { border-color: #000; background: #fff; }
 
@@ -198,20 +200,46 @@
         font-weight: 500;
     }
 
-    /* Адаптивность */
-    @media (max-width: 992px) {
+    .action-container {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        align-items: center;
+        flex-wrap: nowrap;
+    }
+
+    /* --- 5. АДАПТИВНОСТЬ --- */
+
+    /* Планшеты (1100px - 1024px) */
+    @media (max-width: 1100px) {
         .sidebar { transform: translateX(-100%); }
         .sidebar.active { transform: translateX(0); box-shadow: 15px 0 30px rgba(0,0,0,0.1); }
         .main-content { margin-left: 0; padding: 100px 20px 40px; }
         .mobile-header { display: flex; }
     }
 
+    @media (max-width: 1024px) {
+        th, td { padding: 15px 12px; }
+        .save-btn, .edit-btn { padding: 8px 12px; font-size: 12px; }
+        th:nth-child(3), td:nth-child(3) { min-width: 180px; }
+    }
+
+    /* Смартфоны (600px и ниже) */
     @media (max-width: 600px) {
-        table { table-layout: auto; }
         thead { display: none; }
         table, tbody, tr, td { display: block; width: 100% !important; }
-        tr { padding: 20px; border-bottom: 2px solid #f0f0f0; }
-        td { padding: 10px 0; border: none; }
+
+        tr {
+            padding: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        td {
+            padding: 10px 0;
+            border: none;
+            text-align: left !important;
+        }
+
         td::before {
             content: attr(data-label);
             font-size: 11px;
@@ -221,8 +249,17 @@
             font-weight: 600;
             display: block;
         }
-        .edit-btn, .save-btn, .cancel-btn { width: 100%; margin: 5px 0; }
-        .actions-flex { flex-direction: column; }
+
+        .action-container {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .edit-btn, .save-btn, .cancel-btn {
+            width: 100%;
+            margin: 5px 0;
+            text-align: center;
+        }
     }
     </style>
 </head>
@@ -394,7 +431,7 @@
         cell.innerHTML = `<input type="text" class="table-input" id="input-${field}" value="${currentVal}">`;
 
         actions.innerHTML = `
-            <div class="actions-flex" style="display:flex; gap:5px; justify-content:flex-end;">
+             <div class="action-container">
                 <button class="save-btn" onclick="saveUpdate('${field}')">Сохранить</button>
                 <button class="cancel-btn" onclick="cancelEdit('${field}')">Отмена</button>
             </div>
